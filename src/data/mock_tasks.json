@@ -1,0 +1,139 @@
+[
+  {
+    "id": 0,
+    "color": "yellow",
+    "description": "Example task with default color.",
+    "due_date": "2025-04-07T12:04:05.988Z",
+    "is_archived": false,
+    "is_favorite": false,
+    "repeating_date": {
+      "mo": false,
+      "tu": false,
+      "we": false,
+      "th": false,
+      "fr": false,
+      "sa": false,
+      "su": false
+    }
+  },
+  {
+    "id": 1,
+    "color": "black",
+    "description": "Example task with custom color.",
+    "due_date": "2025-04-07T12:04:05.988Z",
+    "is_archived": false,
+    "is_favorite": false,
+    "repeating_date": {
+      "mo": false,
+      "tu": false,
+      "we": false,
+      "th": false,
+      "fr": false,
+      "sa": false,
+      "su": false
+    }
+  },
+  {
+    "id": 2,
+    "color": "pink",
+    "description": "Example task with custom color and without date.",
+    "due_date": "2025-04-07T12:04:05.988Z",
+    "is_archived": false,
+    "is_favorite": false,
+    "repeating_date": {
+      "mo": false,
+      "tu": false,
+      "we": false,
+      "th": false,
+      "fr": false,
+      "sa": false,
+      "su": false
+    }
+  },
+  {
+    "id": 3,
+    "color": "green",
+    "description": "Example task which marked as favorite.",
+    "due_date": "2025-04-07T12:04:05.988Z",
+    "is_archived": false,
+    "is_favorite": false,
+    "repeating_date": {
+      "mo": false,
+      "tu": false,
+      "we": false,
+      "th": false,
+      "fr": false,
+      "sa": false,
+      "su": false
+    }
+  },
+  {
+    "id": 4,
+    "color": "blue",
+    "description": "Example task without date.",
+    "due_date": "2025-04-07T12:04:05.988Z",
+    "is_archived": false,
+    "is_favorite": false,
+    "repeating_date": {
+      "mo": false,
+      "tu": false,
+      "we": false,
+      "th": false,
+      "fr": false,
+      "sa": false,
+      "su": false
+    }
+  },
+  {
+    "id": 5,
+    "color": "",
+    "description": "It is example of repeating task. It marks by wave.",
+    "due_date": "2025-04-07T12:04:05.988Z",
+    "is_archived": false,
+    "is_favorite": false,
+    "repeating_date": {
+      "mo": false,
+      "tu": false,
+      "we": false,
+      "th": false,
+      "fr": false,
+      "sa": false,
+      "su": false
+    }
+  },
+  {
+    "id": 6,
+    "color": "yellow",
+    "description": "This is task with missing deadline.",
+    "due_date": null,
+    "is_archived": false,
+    "is_favorite": false,
+    "repeating_date": {
+      "mo": false,
+      "tu": false,
+      "we": false,
+      "th": false,
+      "fr": false,
+      "sa": false,
+      "su": false
+    }
+  },
+  {
+    "id": 7,
+    "color": "yellow",
+    "description":
+      "This is task with missing deadline. Deadline always marked by red line.",
+    "due_date": null,
+    "is_archived": false,
+    "is_favorite": true,
+    "repeating_date": {
+      "mo": false,
+      "tu": false,
+      "we": false,
+      "th": false,
+      "fr": false,
+      "sa": false,
+      "su": false
+    }
+  }
+]
