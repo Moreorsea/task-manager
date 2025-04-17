@@ -1,7 +1,7 @@
 <template>
-    <HeaderControl />
+  <HeaderControl />
 
-    <HeaderFilter />
+  <HeaderFilter />
 </template>
 
 <script setup lang="ts">

@@ -1,12 +1,19 @@
 <template>
-		<Header />
+  <Header />
 
-		<router-view/>
-
+  <router-view />
 </template>
 
 <script lang="ts" setup>
+import { onMounted } from 'vue';
 import Header from './components/Header.vue';
+import { useTasksStore } from './stores/tasks';
+
+const tasksStore = useTasksStore();
+
+onMounted(async () => {
+  await tasksStore.fetchTasks();
+});
 </script>
 
 <style>
@@ -34,34 +41,37 @@ nav a.router-link-exact-active {
   color: #42b983;
 } */
 @font-face {
-  font-family: "HelveticaNeueCyr";
-  src: local("HelveticaNeueCyr-Bold"),
-    url("@/fonts/HelveticaNeueCyr-Bold.woff2") format("woff"),
-    url("@/fonts/HelveticaNeueCyr-Bold.woff") format("woff");
+  font-family: 'HelveticaNeueCyr';
+  src:
+    local('HelveticaNeueCyr-Bold'),
+    url('@/fonts/HelveticaNeueCyr-Bold.woff2') format('woff'),
+    url('@/fonts/HelveticaNeueCyr-Bold.woff') format('woff');
   font-weight: bold;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "HelveticaNeueCyr";
-  src: local("HelveticaNeueCyr-Medium"),
-    url("@/fonts/HelveticaNeueCyr-Medium.woff2") format("woff2"),
-    url("@/fonts/HelveticaNeueCyr-Medium.woff") format("woff");
+  font-family: 'HelveticaNeueCyr';
+  src:
+    local('HelveticaNeueCyr-Medium'),
+    url('@/fonts/HelveticaNeueCyr-Medium.woff2') format('woff2'),
+    url('@/fonts/HelveticaNeueCyr-Medium.woff') format('woff');
   font-weight: 500;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "HelveticaNeueCyr";
-  src: local("HelveticaNeueCyr-Roman"),
-    url("@/fonts/HelveticaNeueCyr-Roman.woff2") format("woff2"),
-    url("@/fonts/HelveticaNeueCyr-Roman.woff") format("woff");
+  font-family: 'HelveticaNeueCyr';
+  src:
+    local('HelveticaNeueCyr-Roman'),
+    url('@/fonts/HelveticaNeueCyr-Roman.woff2') format('woff2'),
+    url('@/fonts/HelveticaNeueCyr-Roman.woff') format('woff');
   font-weight: normal;
   font-style: normal;
 }
 
 body {
-  font-family: "HelveticaNeueCyr", Arial, sans-serif;
+  font-family: 'HelveticaNeueCyr', Arial, sans-serif;
 }
 
 .container {

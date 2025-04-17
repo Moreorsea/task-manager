@@ -5,11 +5,16 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "format": "prettier --write src/"
   },
   "dependencies": {
+    "@kyvg/vue3-notification": "^3.4.1",
+    "axios": "^1.8.4",
+    "dayjs": "^1.11.13",
     "pinia": "^3.0.1",
     "vue": "^3.2.13",
+    "vue-flatpickr-component": "^12.0.0",
     "vue-router": "^4.0.3"
   },
   "devDependencies": {
@@ -45,13 +50,13 @@
       "ecmaVersion": 2020
     },
     "rules": {
-      "overlay": "off",
       "vue/multi-word-component-names": "off",
       "no-tabs": "off",
       "vuejs-accessibility/label-has-for": "off",
       "max-len": "off",
       "vuejs-accessibility/form-control-has-label": "off",
-      "camelcase": "off"
+      "camelcase": "off",
+      "no-unused-expressions": "off"
     }
   },
   "browserslist": [

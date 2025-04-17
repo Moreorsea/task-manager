@@ -1,61 +1,74 @@
 <template>
-  <article :class="{'card': true, [`card--${task.color}`]: task.color}">
-      <div class="card__form">
-        <div class="card__inner">
-          <div class="card__control">
-            <button type="button" class="card__btn card__btn--edit">
-              edit
-            </button>
-            <button type="button" class="card__btn card__btn--archive">
-              archive
-            </button>
-            <button
-              type="button"
-              :class="{'card__btn card__btn--favorites': true, 'card__btn--disabled': task.is_favorite}"
-            >
-              favorites
-            </button>
-          </div>
+  <Form v-if="tasksListState && tasksListState === task.id" :task="task" />
+  <article v-else :class="classes">
+    <div class="card__form">
+      <div class="card__inner">
+        <div class="card__control">
+          <button type="button" class="card__btn card__btn--edit" @click="handleEditForm">edit</button>
+          <button type="button" :class="{ 'card__btn card__btn--archive': true, 'card__btn--disabled': task.is_archived }">archive</button>
+          <button type="button" :class="{ 'card__btn card__btn--favorites': true, 'card__btn--disabled': task.is_favorite }">favorites</button>
+        </div>
 
-          <div class="card__color-bar">
-            <svg class="card__color-bar-wave" width="100%" height="10">
-              <use xlink:href="#wave"></use>
-            </svg>
-          </div>
+        <div class="card__color-bar">
+          <Wave />
+        </div>
 
-          <div class="card__textarea-wrap">
-            <p class="card__text">{{ task.description }}</p>
-          </div>
+        <div class="card__textarea-wrap">
+          <p class="card__text">{{ task.description }}</p>
+        </div>
 
-          <div class="card__settings" v-if="task.due_date">
-            <div class="card__details">
-              <div class="card__dates">
-                <div class="card__date-deadline">
-                  <p class="card__input-deadline-wrap">
-                    <span class="card__date">23 September</span>
-                  </p>
-                </div>
+        <div>Дни повторения задачи</div>
+
+        <div class="card__settings" v-if="task.due_date">
+          <div class="card__details">
+            <div class="card__dates">
+              <div class="card__date-deadline">
+                <p class="card__input-deadline-wrap">
+                  <span class="card__date">{{ dayjs(task.due_date).format('DD MMMM') }}</span>
+                </p>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </article>
+    </div>
+  </article>
 </template>
 
 <script lang="ts" setup>
 /**
- * стили-модификаторы для линий
- * card--black - по умолчанию
- * card--blue
- * card--yellow
- * card--pink
- * card--red
  * card--deadline - просроченная задача. card card--deadline
  * Под просроченной задачей подразумевается задача с установленной датой исполнения меньше текущей даты.
  * card--repeat - повторяющаяся задача. у нее цветная полоса становится прозрачной
  * card__btn--disabled - для карточки, которая добавлена в избранное. card__btn card__btn--favorites card__btn--disabled
  */
+import { computed, ref } from 'vue';
+import { useTasksStore } from '@/stores/tasks';
+import dayjs from 'dayjs';
+import { isTaskExpired } from '@/utils/utils';
+import { storeToRefs } from 'pinia';
+import Wave from './Wave.vue';
+import Form from './Form.vue';
+
+export interface IWeek {
+  mo: boolean;
+  tu: boolean;
+  we: boolean;
+  th: boolean;
+  fr: boolean;
+  sa: boolean;
+  su: boolean;
+}
+
+export interface ITask {
+  id: number;
+  description: string;
+  due_date: string;
+  color: string;
+  repeating_date: IWeek;
+  is_archived: boolean;
+  is_favorite: boolean;
+}
 
 const props = defineProps({
   task: {
@@ -63,6 +76,31 @@ const props = defineProps({
     required: true,
   },
 });
+
+const isRepeatingTask = (repeating_date: any): boolean => Object.values(repeating_date).some((el) => el);
+
+const tasksStore = useTasksStore();
+const { tasksListState } = storeToRefs(tasksStore);
+
+const classes = computed<string>(() => {
+  const classNames = ['card'];
+
+  props.task.color && classNames.push(`card--${props.task.color}`);
+
+  if (props.task?.repeating_date && isRepeatingTask(props.task?.repeating_date)) {
+    classNames.push('card--repeat');
+  }
+
+  isTaskExpired(props.task.due_date) && classNames.push('card--deadline');
+
+  tasksListState.value && tasksListState.value === props.task.id && classNames.push('card--edit');
+
+  return classNames.join(' ');
+});
+
+const handleEditForm = () => {
+  tasksStore.setTasksListState(props.task.id);
+};
 </script>
 
 <style lang="less">
@@ -92,7 +130,8 @@ const props = defineProps({
 .card__inner:hover {
   outline: 10px solid white;
   transition: outline-width 0.2s ease-in-out;
-  box-shadow: 0 -14px 38px 0 rgba(35, 113, 245, 0.07),
+  box-shadow:
+    0 -14px 38px 0 rgba(35, 113, 245, 0.07),
     0 14px 38px 0 rgba(35, 113, 245, 0.07);
   z-index: 1;
 }
@@ -132,9 +171,9 @@ const props = defineProps({
   width: 100%;
   height: 10px;
   font-size: 0;
-  background-color: black;
+  //background-color: black;
   margin-bottom: 10px;
-  stroke: #000000;
+  //stroke: #000000;
 }
 .card--black .card__color-bar {
   background-color: #000000;
@@ -264,6 +303,17 @@ const props = defineProps({
 .card__repeat-toggle,
 .card__repeat-days-inner {
   display: none;
+
+  li {
+    position: relative;
+  }
+}
+
+.card__repeat-days-inner {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 0;
+  margin-bottom: 10px;
 }
 .card__repeat-wrap {
   position: relative;
@@ -450,9 +500,9 @@ const props = defineProps({
   background-color: transparent;
 }
 .card--edit .card__hashtag-delete::after {
-  content: "";
+  content: '';
   position: absolute;
-  background: url("../assets/close.svg") no-repeat;
+  background: url('../assets/close.svg') no-repeat;
   background-size: 8px;
   width: 8px;
   height: 8px;
@@ -494,6 +544,8 @@ const props = defineProps({
   display: flex;
   justify-content: space-between;
   margin-bottom: 20px;
+  list-style: none;
+  padding-left: 0;
 }
 .card__color {
   display: flex;
@@ -509,31 +561,41 @@ const props = defineProps({
   background-color: #0a0a0a;
 }
 .card__color-input--black:checked + .card__color--black {
-  box-shadow: 0 0 0 4px #ffffff, 0 0 0 6px #0a0a0a;
+  box-shadow:
+    0 0 0 4px #ffffff,
+    0 0 0 6px #0a0a0a;
 }
 .card__color--yellow {
   background-color: #ffe125;
 }
 .card__color-input--yellow:checked + .card__color--yellow {
-  box-shadow: 0 0 0 4px #ffffff, 0 0 0 6px #ffe125;
+  box-shadow:
+    0 0 0 4px #ffffff,
+    0 0 0 6px #ffe125;
 }
 .card__color--blue {
   background-color: #0c5cdd;
 }
 .card__color-input--blue:checked + .card__color--blue {
-  box-shadow: 0 0 0 4px #ffffff, 0 0 0 6px #0c5cdd;
+  box-shadow:
+    0 0 0 4px #ffffff,
+    0 0 0 6px #0c5cdd;
 }
 .card__color--green {
   background-color: #31b55c;
 }
 .card__color-input--green:checked + .card__color--green {
-  box-shadow: 0 0 0 4px #ffffff, 0 0 0 6px #31b55c;
+  box-shadow:
+    0 0 0 4px #ffffff,
+    0 0 0 6px #31b55c;
 }
 .card__color--pink {
   background-color: #ff3cb9;
 }
 .card__color-input--pink:checked + .card__color--pink {
-  box-shadow: 0 0 0 4px #ffffff, 0 0 0 6px #ff3cb9;
+  box-shadow:
+    0 0 0 4px #ffffff,
+    0 0 0 6px #ff3cb9;
 }
 .card--edit .card__img-wrap--empty .card__img {
   width: 45px;
@@ -610,3 +672,5 @@ const props = defineProps({
   background-color: rgba(255, 0, 0, 0.1);
 }
 </style>
+
+function dayjs(due_date: any) { throw new Error('Function not implemented.'); }

@@ -1,71 +1,41 @@
 <template>
-  <section class="main__filter filter container">
-        <input
-          type="radio"
-          id="filter__all"
-          class="filter__input visually-hidden"
-          name="filter"
-          checked
-        />
-        <label for="filter__all" class="filter__label">
-          All <span class="filter__all-count">13</span></label
-        >
-        <input
-          type="radio"
-          id="filter__overdue"
-          class="filter__input visually-hidden"
-          name="filter"
-          disabled
-        />
-        <label for="filter__overdue" class="filter__label"
-          >Overdue <span class="filter__overdue-count">0</span></label
-        >
-        <input
-          type="radio"
-          id="filter__today"
-          class="filter__input visually-hidden"
-          name="filter"
-          disabled
-        />
-        <label for="filter__today" class="filter__label"
-          >Today <span class="filter__today-count">0</span></label
-        >
-        <input
-          type="radio"
-          id="filter__favorites"
-          class="filter__input visually-hidden"
-          name="filter"
-        />
-        <label for="filter__favorites" class="filter__label"
-          >Favorites <span class="filter__favorites-count">1</span></label
-        >
-        <input
-          type="radio"
-          id="filter__repeating"
-          class="filter__input visually-hidden"
-          name="filter"
-        />
-        <label for="filter__repeating" class="filter__label"
-          >Repeating <span class="filter__repeating-count">1</span></label
-        >
-        <input
-          type="radio"
-          id="filter__archive"
-          class="filter__input visually-hidden"
-          name="filter"
-        />
-        <label for="filter__archive" class="filter__label"
-          >Archive <span class="filter__archive-count">115</span></label
-        >
-      </section>
+  <section>
+    <ul class="main__filter filter container">
+      <li v-for="{ filter, count } in Object.entries(filters).map(([filter, count]) => ({ filter, count }))" :key="filter">
+        <input type="radio" :id="`filter__${filter}`" class="filter__input visually-hidden" name="filter" :disabled="count.value === 0" />
+        <label :for="`filter__${filter}`" class="filter__label">
+          {{ filter }}
+          <span :class="`filter__${filter}-count`">{{ count }}</span>
+        </label>
+      </li>
+    </ul>
+  </section>
 </template>
 
 <script setup lang="ts">
+import { useTasksStore } from '@/stores/tasks';
+import { storeToRefs } from 'pinia';
+import { isTaskExpired, isTaskExpiringToday } from '@/utils/utils';
+import { computed } from 'vue';
+import { ITask } from './TaskCard.vue';
+
+const tasksForStore = useTasksStore();
+const { notArchiveTasks, tasks } = storeToRefs(tasksForStore);
+
+const filters = {
+  all: computed(() => notArchiveTasks.value.length),
+  overdue: computed(() => notArchiveTasks.value.filter((task: ITask) => isTaskExpired(task.due_date)).length),
+  today: computed(() => notArchiveTasks.value.filter((task: ITask) => isTaskExpiringToday(task.due_date)).length),
+  favorites: computed(() => notArchiveTasks.value.filter((task: ITask) => task.is_favorite).length),
+  repeating: computed(() => notArchiveTasks.value.filter((task: ITask) => task?.repeating_date && Object.values(task?.repeating_date).some(Boolean)).length),
+  archive: computed(() => tasks.value.filter((task: ITask) => task.is_archived).length),
+};
 </script>
 
 <style scoped lang="less">
 .main__filter {
   margin-bottom: 29px;
+  list-style: none;
 }
 
 .filter {

@@ -1,22 +1,33 @@
 <template>
-<section class="board container">
-  <div class="board__filter-list">
-    <a href="#" class="board__filter">SORT BY DEFAULT</a>
-    <a href="#" class="board__filter">SORT BY DATE up</a>
-    <a href="#" class="board__filter">SORT BY DATE down</a>
-  </div>
+  <section class="board container">
+    <div class="board__filter-list">
+      <a href="#" class="board__filter">SORT BY DEFAULT</a>
+      <a href="#" class="board__filter">SORT BY DATE up</a>
+      <a href="#" class="board__filter">SORT BY DATE down</a>
+    </div>
+    <div class="board__tasks">
+      <Form v-if="tasksListState === null" />
 
-  <div class="board__tasks">
-    <TaskCard v-for="task in mock_tasks" :key="task.id" :task="task" />
-  </div>
+      <TaskCard v-for="task in tasks" :key="task.id" :task="task" />
+    </div>
 
-  <button class="load-more" type="button">load more</button>
-</section>
+    <button v-if="isShowLoadMore" class="load-more" type="button">load more</button>
+  </section>
 </template>
 
 <script lang="ts" setup>
 import TaskCard from '@/components/TaskCard.vue';
-import mock_tasks from '@/data/mock_tasks.json';
+import Form from '@/components/Form.vue';
+import { useTasksStore } from '@/stores/tasks';
+import { storeToRefs } from 'pinia';
+import { computed, ref, watchEffect } from 'vue';
+
+const tasksStore = useTasksStore();
+const { isCreateMode, tasks, tasksListState } = storeToRefs(tasksStore);
+const editableTask = ref<number | null>(null);
+const TASK_FOR_PAGE = 8;
+
+const isShowLoadMore = computed<boolean>(() => tasks.value.length > TASK_FOR_PAGE);
 </script>
 
 <style lang="less">

@@ -1,5 +1,6 @@
 {
-  "semi": false,
+  "$schema": "https://json.schemastore.org/prettierrc",
+  "semi": true,
   "singleQuote": true,
-  "vueIndentScriptAndStyle": true
+  "vueIndentScriptAndStyle": false
 }
