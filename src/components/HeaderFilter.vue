@@ -1,7 +1,11 @@
 <template>
   <section>
     <ul class="main__filter filter container">
-      <li v-for="{ filter, count } in Object.entries(filters).map(([filter, count]) => ({ filter, count }))" :key="filter">
+      <li
+        v-for="{ filter, count } in Object.entries(filters).map(([filter, count]) => ({ filter, count }))"
+        :key="filter"
+        @click="tasksStore.setActiveFilter(filter)"
+      >
         <input type="radio" :id="`filter__${filter}`" class="filter__input visually-hidden" name="filter" :disabled="count.value === 0" />
         <label :for="`filter__${filter}`" class="filter__label">
           {{ filter }}
@@ -17,18 +21,18 @@ import { useTasksStore } from '@/stores/tasks';
 import { storeToRefs } from 'pinia';
 import { isTaskExpired, isTaskExpiringToday } from '@/utils/utils';
 import { computed } from 'vue';
-import { ITask } from './TaskCard.vue';
+import { ITask } from '@/types/interfaces';
 
-const tasksForStore = useTasksStore();
-const { notArchiveTasks, tasks } = storeToRefs(tasksForStore);
+const tasksStore = useTasksStore();
+const { tasks } = storeToRefs(tasksStore);
 
 const filters = {
-  all: computed(() => notArchiveTasks.value.length),
-  overdue: computed(() => notArchiveTasks.value.filter((task: ITask) => isTaskExpired(task.due_date)).length),
-  today: computed(() => notArchiveTasks.value.filter((task: ITask) => isTaskExpiringToday(task.due_date)).length),
-  favorites: computed(() => notArchiveTasks.value.filter((task: ITask) => task.is_favorite).length),
-  repeating: computed(() => notArchiveTasks.value.filter((task: ITask) => task?.repeating_date && Object.values(task?.repeating_date).some(Boolean)).length),
-  archive: computed(() => tasks.value.filter((task: ITask) => task.is_archived).length),
+  all: computed<number>(() => tasks.value.filter((task: ITask) => !task.is_archived).length),
+  overdue: computed<number>(() => tasks.value.filter((task: ITask) => isTaskExpired(task.due_date) && !task.is_archived).length),
+  today: computed<number>(() => tasks.value.filter((task: ITask) => isTaskExpiringToday(task.due_date) && !task.is_archived).length),
+  favorites: computed<number>(() => tasks.value.filter((task: ITask) => task.is_favorite).length),
+  repeating: computed<number>(() => tasks.value.filter((task: ITask) => task?.repeating_date && Object.values(task?.repeating_date).some(Boolean) && !task.is_archived).length),
+  archive: computed<number>(() => tasks.value.filter((task: ITask) => task.is_archived).length),
 };
 </script>
 

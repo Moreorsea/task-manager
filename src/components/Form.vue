@@ -33,10 +33,7 @@
                 <span v-else class="card__date-status">no</span>
               </button>
               <fieldset class="card__date-deadline" v-if="isDate">
-                <label class="card__input-deadline-wrap">
-                  <input class="card__date" type="text" placeholder="" name="date" value="23 September 16:15" />
-                </label>
-                <flat-pickr v-model="date" />
+                <flat-pickr v-model="date" :config="config" class="card__date" />
               </fieldset>
             </div>
           </div>
@@ -44,7 +41,6 @@
           <div class="card__colors-inner">
             <h3 class="card__colors-title">Color</h3>
             <ul class="card__colors-wrap">
-              <!--по умолчанию выбран цвет при создании, при редактировании выбраны цвет задачи-->
               <li v-for="color in Colors" :key="color">
                 <input
                   type="radio"
@@ -74,12 +70,12 @@
 <script setup lang="ts">
 import { watchEffect, ref, computed } from 'vue';
 import flatPickr from 'vue-flatpickr-component';
-import { API_METHODS, Colors, RepeatingDays } from '../constants/form';
 import Wave from './Wave.vue';
 import 'flatpickr/dist/flatpickr.css';
 import { storeToRefs } from 'pinia';
 import { useTasksStore } from '@/stores/tasks';
 import { isTaskExpired } from '@/utils/utils';
+import { API_METHODS, Colors } from '@/types/enums';
 
 const props = defineProps({
   task: {
@@ -96,7 +92,13 @@ const taskCopy = ref(props.task || tasksStore.createNewTask());
 const isRepeat = ref(Object.values(taskCopy.value?.repeating_date || {}).some((el) => el));
 const isDate = ref(!!taskCopy.value?.due_date);
 const errorMessage = ref('');
-const date = ref(null);
+const date = ref(props.task?.due_date ?? new Date());
+
+const config = ref({
+  dateFormat: 'd M Y H:m',
+  enableTime: true,
+  time_24hr: true,
+});
 
 const { tasksListState } = storeToRefs(tasksStore);
 
@@ -118,11 +120,19 @@ const handleSave = () => {
   validateForm();
 
   if (!errorMessage.value) {
-    tasksStore.createEditTask({ ...taskCopy.value, repeating_date: JSON.stringify(taskCopy.value?.repeating_date) }, taskCopy.value.id ? API_METHODS.put : API_METHODS.post);
+    tasksStore.createEditTask({
+      ...taskCopy.value,
+      repeating_date: JSON.stringify(taskCopy.value?.repeating_date),
+      due_date: isDate.value ? date.value : null,
+    }, taskCopy.value.id ? API_METHODS.put : API_METHODS.post);
   }
 };
 
 const handleDelete = () => {
+  if (tasksListState.value === null || tasksStore.tasks.length === 0) {
+    tasksStore.setTasksListState(undefined);
+    return;
+  }
   tasksStore.deleteTask(taskCopy.value.id);
 };
 
@@ -171,6 +181,9 @@ const handleRepeat = () => {
       sa: false,
       su: false,
     };
+  } else {
+    isDate.value = false;
+    taskCopy.value.due_date = null;
   }
 };
 
@@ -179,8 +192,9 @@ const handleDate = () => {
 };
 </script>
 
-<style>
+<style scoped lang="less">
 .error {
   color: red;
 }
+
 </style>

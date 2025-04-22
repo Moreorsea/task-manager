@@ -1,33 +1,36 @@
 <template>
   <section class="board container">
-    <div class="board__filter-list">
-      <a href="#" class="board__filter">SORT BY DEFAULT</a>
-      <a href="#" class="board__filter">SORT BY DATE up</a>
-      <a href="#" class="board__filter">SORT BY DATE down</a>
-    </div>
+    <TaskSort v-if="filteredTasks.length" />
+
     <div class="board__tasks">
       <Form v-if="tasksListState === null" />
 
-      <TaskCard v-for="task in tasks" :key="task.id" :task="task" />
+      <NoTasks v-if="showTasksNoLength" />
+
+      <TaskCard v-for="task in filteredTasks" :key="task.id" :task="task" />
     </div>
 
     <button v-if="isShowLoadMore" class="load-more" type="button">load more</button>
   </section>
+
+  <notifications position="top right" />
 </template>
 
 <script lang="ts" setup>
 import TaskCard from '@/components/TaskCard.vue';
 import Form from '@/components/Form.vue';
+import TaskSort from '@/components/TaskSort.vue';
+import NoTasks from '@/components/NoTasks.vue';
 import { useTasksStore } from '@/stores/tasks';
 import { storeToRefs } from 'pinia';
-import { computed, ref, watchEffect } from 'vue';
+import { computed } from 'vue';
 
 const tasksStore = useTasksStore();
-const { isCreateMode, tasks, tasksListState } = storeToRefs(tasksStore);
-const editableTask = ref<number | null>(null);
+const { tasksListState, filteredTasks } = storeToRefs(tasksStore);
+const showTasksNoLength = computed(() => filteredTasks.value.length === 0 && tasksListState.value === undefined);
 const TASK_FOR_PAGE = 8;
 
-const isShowLoadMore = computed<boolean>(() => tasks.value.length > TASK_FOR_PAGE);
+const isShowLoadMore = computed<boolean>(() => filteredTasks.value.length > TASK_FOR_PAGE);
 </script>
 
 <style lang="less">
@@ -62,6 +65,7 @@ const isShowLoadMore = computed<boolean>(() => tasks.value.length > TASK_FOR_PAG
 .board__no-tasks {
   text-align: center;
   text-transform: uppercase;
+  width: 100%;
 }
 
 // load more

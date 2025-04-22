@@ -5,8 +5,8 @@
       <div class="card__inner">
         <div class="card__control">
           <button type="button" class="card__btn card__btn--edit" @click="handleEditForm">edit</button>
-          <button type="button" :class="{ 'card__btn card__btn--archive': true, 'card__btn--disabled': task.is_archived }">archive</button>
-          <button type="button" :class="{ 'card__btn card__btn--favorites': true, 'card__btn--disabled': task.is_favorite }">favorites</button>
+          <button type="button" :class="{ 'card__btn card__btn--archive': true, 'card__btn--disabled': task.is_archived }" @click="handleArchive">archive</button>
+          <button type="button" :class="{ 'card__btn card__btn--favorites': true, 'card__btn--disabled': task.is_favorite }" @click="handleFavorite">favorites</button>
         </div>
 
         <div class="card__color-bar">
@@ -17,7 +17,9 @@
           <p class="card__text">{{ task.description }}</p>
         </div>
 
-        <div>Дни повторения задачи</div>
+        <div class="card__days" v-if="isRepeatingTask(props.task?.repeating_date)">
+          Task repetition days: {{ repeatingDays }}
+        </div>
 
         <div class="card__settings" v-if="task.due_date">
           <div class="card__details">
@@ -36,39 +38,14 @@
 </template>
 
 <script lang="ts" setup>
-/**
- * card--deadline - просроченная задача. card card--deadline
- * Под просроченной задачей подразумевается задача с установленной датой исполнения меньше текущей даты.
- * card--repeat - повторяющаяся задача. у нее цветная полоса становится прозрачной
- * card__btn--disabled - для карточки, которая добавлена в избранное. card__btn card__btn--favorites card__btn--disabled
- */
-import { computed, ref } from 'vue';
+import { computed, ref, watchEffect } from 'vue';
 import { useTasksStore } from '@/stores/tasks';
 import dayjs from 'dayjs';
 import { isTaskExpired } from '@/utils/utils';
 import { storeToRefs } from 'pinia';
+import { API_METHODS } from '@/constants/form';
 import Wave from './Wave.vue';
 import Form from './Form.vue';
-
-export interface IWeek {
-  mo: boolean;
-  tu: boolean;
-  we: boolean;
-  th: boolean;
-  fr: boolean;
-  sa: boolean;
-  su: boolean;
-}
-
-export interface ITask {
-  id: number;
-  description: string;
-  due_date: string;
-  color: string;
-  repeating_date: IWeek;
-  is_archived: boolean;
-  is_favorite: boolean;
-}
 
 const props = defineProps({
   task: {
@@ -78,6 +55,13 @@ const props = defineProps({
 });
 
 const isRepeatingTask = (repeating_date: any): boolean => Object.values(repeating_date).some((el) => el);
+const repeatingDays = computed(() => Object.entries(props.task?.repeating_date).reduce((sum, day) => {
+  if (day[1]) {
+    sum.push(day[0]);
+  }
+
+  return sum;
+}, []).join(', '));
 
 const tasksStore = useTasksStore();
 const { tasksListState } = storeToRefs(tasksStore);
@@ -87,7 +71,7 @@ const classes = computed<string>(() => {
 
   props.task.color && classNames.push(`card--${props.task.color}`);
 
-  if (props.task?.repeating_date && isRepeatingTask(props.task?.repeating_date)) {
+  if (isRepeatingTask(props.task?.repeating_date)) {
     classNames.push('card--repeat');
   }
 
@@ -101,6 +85,22 @@ const classes = computed<string>(() => {
 const handleEditForm = () => {
   tasksStore.setTasksListState(props.task.id);
 };
+
+const handleFavorite = () => {
+  tasksStore.createEditTask({
+    ...props.task,
+    is_favorite: !props.task.is_favorite,
+    repeating_date: JSON.stringify(props.task.repeating_date),
+  }, API_METHODS.put);
+};
+
+const handleArchive = () => {
+  tasksStore.createEditTask({
+    ...props.task,
+    is_archived: !props.task.is_archived,
+    repeating_date: JSON.stringify(props.task.repeating_date),
+  }, API_METHODS.put);
+};
 </script>
 
 <style lang="less">
@@ -110,6 +110,10 @@ const handleEditForm = () => {
   min-height: 210px;
   margin-bottom: 26px;
   margin-right: 40px;
+
+  &__days {
+    font-size: 14px;
+  }
 }
 .card__inner {
   position: absolute;
