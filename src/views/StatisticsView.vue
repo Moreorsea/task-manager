@@ -27,6 +27,8 @@
 </template>
 
 <style lang="less">
+@import '../style/variables.less';
+
 .statistic {
   padding-top: 50px;
   padding-bottom: 50px;
@@ -34,7 +36,7 @@
 .statistic__line {
   display: flex;
   padding-bottom: 20px;
-  border-bottom: 5px solid #000000;
+  border-bottom: 5px solid @black;
 }
 .statistic__period {
   width: 230px;
@@ -52,10 +54,10 @@
 .statistic__period-input {
   padding: 8px 0 4px 20px;
   margin: 0;
-  border: 1px solid #000000;
+  border: 1px solid @black;
   font-size: 14px;
   width: 100%;
-  color: #000000;
+  color: @black;
 }
 .statistic__period-result {
   font-size: 14px;

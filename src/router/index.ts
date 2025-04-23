@@ -1,3 +1,4 @@
+import { useTasksStore } from '@/stores/tasks';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
 const routes: Array<RouteRecordRaw> = [
@@ -5,6 +6,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/tasks',
     name: 'tasks',
     component: () => import(/* webpackChunkName: "about" */ '../views/TasksView.vue'),
+    beforeEnter: (to, from, next) => {
+      const tasksStore = useTasksStore();
+      tasksStore.resetPageSize();
+      next();
+    },
   },
   {
     path: '/statistics',

@@ -4,15 +4,19 @@
       <li
         v-for="{ filter, count } in Object.entries(filters).map(([filter, count]) => ({ filter, count }))"
         :key="filter"
-        @click="tasksStore.setActiveFilter(filter)"
+        class="filter__item"
+        :class="{ 'filter__item--active': activeFilter === filter, 'filter__item--disabled': count.value === 0 }"
+        @click="handleFilter(filter)"
       >
-        <input type="radio" :id="`filter__${filter}`" class="filter__input visually-hidden" name="filter" :disabled="count.value === 0" />
-        <label :for="`filter__${filter}`" class="filter__label">
-          {{ filter }}
-          <span :class="`filter__${filter}-count`">{{ count }}</span>
-        </label>
+        {{ filter }} {{ count }}
       </li>
     </ul>
+
+    <!-- <ul>
+      <li v-for="option in filterOptions" :key="option">
+        {{ option }}
+      </li>
+    </ul> -->
   </section>
 </template>
 
@@ -22,47 +26,63 @@ import { storeToRefs } from 'pinia';
 import { isTaskExpired, isTaskExpiringToday } from '@/utils/utils';
 import { computed } from 'vue';
 import { ITask } from '@/types/interfaces';
+import { Filters } from '@/types/enums';
 
 const tasksStore = useTasksStore();
-const { tasks } = storeToRefs(tasksStore);
+const { tasks, activeFilter } = storeToRefs(tasksStore);
 
 const filters = {
-  all: computed<number>(() => tasks.value.filter((task: ITask) => !task.is_archived).length),
-  overdue: computed<number>(() => tasks.value.filter((task: ITask) => isTaskExpired(task.due_date) && !task.is_archived).length),
-  today: computed<number>(() => tasks.value.filter((task: ITask) => isTaskExpiringToday(task.due_date) && !task.is_archived).length),
-  favorites: computed<number>(() => tasks.value.filter((task: ITask) => task.is_favorite).length),
-  repeating: computed<number>(() => tasks.value.filter((task: ITask) => task?.repeating_date && Object.values(task?.repeating_date).some(Boolean) && !task.is_archived).length),
-  archive: computed<number>(() => tasks.value.filter((task: ITask) => task.is_archived).length),
+  [Filters.all]: computed<number>(() => tasks.value.filter((task: ITask) => !task.is_archived).length),
+  [Filters.overdue]: computed<number>(() => tasks.value.filter((task: ITask) => isTaskExpired(task.due_date) && !task.is_archived).length),
+  [Filters.today]: computed<number>(() => tasks.value.filter((task: ITask) => isTaskExpiringToday(task.due_date) && !task.is_archived).length),
+  [Filters.favorites]: computed<number>(() => tasks.value.filter((task: ITask) => task.is_favorite).length),
+  [Filters.repeating]: computed<number>(() => tasks.value.filter((task: ITask) => task?.repeating_date && Object.values(task?.repeating_date).some(Boolean) && !task.is_archived).length),
+  [Filters.archive]: computed<number>(() => tasks.value.filter((task: ITask) => task.is_archived).length),
+};
+
+const filterCounts = computed(() => ({
+  [Filters.all]: tasks.value.filter((task: ITask) => !task.is_archived).length,
+  [Filters.overdue]: tasks.value.filter((task: ITask) => isTaskExpired(task.due_date) && !task.is_archived).length,
+  [Filters.today]: tasks.value.filter((task: ITask) => isTaskExpiringToday(task.due_date) && !task.is_archived).length,
+  [Filters.favorites]: tasks.value.filter((task: ITask) => task.is_favorite).length,
+  [Filters.repeating]: tasks.value.filter((task: ITask) => task?.repeating_date && Object.values(task?.repeating_date).some(Boolean) && !task.is_archived).length,
+  [Filters.archive]: tasks.value.filter((task: ITask) => task.is_archived).length,
+}));
+
+const options = computed(() => {
+  return Object.entries(filterCounts.value).map(([filter, count]) => ({ filter, count }));
+});
+
+const handleFilter = (filter: Filters): void => {
+  tasksStore.setActiveFilter(filter);
+  tasksStore.resetPageSize();
 };
 </script>
 
-<style scoped lang="less">
-.main__filter {
-  margin-bottom: 29px;
-  list-style: none;
-}
+<style lang="less" scoped>
+@import '../style/normalize.less';
 
 .filter {
-  display: flex;
   justify-content: space-between;
-}
-.filter__label {
-  text-transform: uppercase;
-  cursor: pointer;
-  font-weight: 500;
-}
-.filter__label:hover {
-  opacity: 0.7;
-  transition: opacity 0.2s ease-out;
-}
-.filter__input:not(:disabled):checked + .filter__label {
-  text-shadow: 1px 0 0 #000000;
-}
-.filter__input:not(:disabled):checked + .filter__label:hover {
-  text-shadow: 1px 0 0 #000000;
-  opacity: 1;
-}
-.filter__input:disabled + .filter__label {
-  color: #e7e3e3;
+  margin-bottom: 29px;
+
+  &__item {
+    cursor: pointer;
+    text-transform: uppercase;
+
+    &--active {
+      font-weight: bold;
+    }
+
+    &--disabled {
+      color: #e7e3e3;
+      pointer-events: none;
+    }
+
+    &:hover {
+      opacity: 0.8;
+      transition: opacity 0.2s ease-out;
+    }
+  }
 }
 </style>

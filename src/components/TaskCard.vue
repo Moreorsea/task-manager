@@ -17,9 +17,7 @@
           <p class="card__text">{{ task.description }}</p>
         </div>
 
-        <div class="card__days" v-if="isRepeatingTask(props.task?.repeating_date)">
-          Task repetition days: {{ repeatingDays }}
-        </div>
+        <div class="card__days" v-if="isRepeatingTask(props.task?.repeating_date)">Task repetition days: {{ repeatingDays }}</div>
 
         <div class="card__settings" v-if="task.due_date">
           <div class="card__details">
@@ -38,12 +36,12 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watchEffect } from 'vue';
+import { computed } from 'vue';
 import { useTasksStore } from '@/stores/tasks';
 import dayjs from 'dayjs';
 import { isTaskExpired } from '@/utils/utils';
 import { storeToRefs } from 'pinia';
-import { API_METHODS } from '@/constants/form';
+import { API_METHODS } from '@/types/enums';
 import Wave from './Wave.vue';
 import Form from './Form.vue';
 
@@ -55,13 +53,18 @@ const props = defineProps({
 });
 
 const isRepeatingTask = (repeating_date: any): boolean => Object.values(repeating_date).some((el) => el);
-const repeatingDays = computed(() => Object.entries(props.task?.repeating_date).reduce((sum, day) => {
-  if (day[1]) {
-    sum.push(day[0]);
-  }
 
-  return sum;
-}, []).join(', '));
+const repeatingDays = computed(() =>
+  Object.entries(props.task?.repeating_date)
+    .reduce((sum, day) => {
+      if (day[1]) {
+        sum.push(day[0]);
+      }
+
+      return sum;
+    }, [])
+    .join(', '),
+);
 
 const tasksStore = useTasksStore();
 const { tasksListState } = storeToRefs(tasksStore);
@@ -87,23 +90,31 @@ const handleEditForm = () => {
 };
 
 const handleFavorite = () => {
-  tasksStore.createEditTask({
-    ...props.task,
-    is_favorite: !props.task.is_favorite,
-    repeating_date: JSON.stringify(props.task.repeating_date),
-  }, API_METHODS.put);
+  tasksStore.createEditTask(
+    {
+      ...props.task,
+      is_favorite: !props.task.is_favorite,
+      repeating_date: JSON.stringify(props.task.repeating_date),
+    },
+    API_METHODS.put,
+  );
 };
 
 const handleArchive = () => {
-  tasksStore.createEditTask({
-    ...props.task,
-    is_archived: !props.task.is_archived,
-    repeating_date: JSON.stringify(props.task.repeating_date),
-  }, API_METHODS.put);
+  tasksStore.createEditTask(
+    {
+      ...props.task,
+      is_archived: !props.task.is_archived,
+      repeating_date: JSON.stringify(props.task.repeating_date),
+    },
+    API_METHODS.put,
+  );
 };
 </script>
 
 <style lang="less">
+@import '../style/variables.less';
+
 .card {
   position: relative;
   width: 210px;
@@ -177,43 +188,43 @@ const handleArchive = () => {
   font-size: 0;
   //background-color: black;
   margin-bottom: 10px;
-  //stroke: #000000;
+  //stroke: @black;
 }
 .card--black .card__color-bar {
-  background-color: #000000;
+  background-color: @black;
 }
 .card--black .card__color-bar-wave {
-  stroke: #000000;
+  stroke: @black;
 }
 .card--yellow .card__color-bar {
-  background-color: #ffe125;
+  background-color: @yellow;
 }
 .card--yellow .card__color-bar-wave {
-  stroke: #ffe125;
+  stroke: @yellow;
 }
 .card--blue .card__color-bar {
-  background-color: #0c5cdd;
+  background-color: @blue;
 }
 .card--blue .card__color-bar-wave {
-  stroke: #0c5cdd;
+  stroke: @blue;
 }
 .card--green .card__color-bar {
-  background-color: #31b55c;
+  background-color: @green;
 }
 .card--green .card__color-bar-wave {
-  stroke: #31b55c;
+  stroke: @green;
 }
 .card--pink .card__color-bar {
-  background-color: #ff3cb9;
+  background-color: @pink;
 }
 .card--pink .card__color-bar-wave {
-  stroke: #ff3cb9;
+  stroke: @pink;
 }
 .card--deadline .card__color-bar {
-  background-color: #f11a1a;
+  background-color: @red;
 }
 .card--deadline .card__color-bar-wave {
-  stroke: #f11a1a;
+  stroke: @red;
 }
 .card--repeat .card__color-bar {
   background-color: transparent;
@@ -222,7 +233,7 @@ const handleArchive = () => {
   position: relative;
 }
 .card__text {
-  border: 1px solid rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(@black, 0.2);
   margin: 0;
   resize: none;
   height: 98px;
@@ -236,10 +247,10 @@ const handleArchive = () => {
   border-color: transparent;
 }
 .card__text:focus {
-  border-color: #000000;
+  border-color: @black;
 }
 .card__text::placeholder {
-  color: rgba(0, 0, 0, 0.3);
+  color: rgba(@black, 0.3);
 }
 .card__settings {
   display: flex;
@@ -267,7 +278,7 @@ const handleArchive = () => {
 }
 .card--deadline .card__date,
 .card--deadline .card__time {
-  color: #f11a1a;
+  color: @red;
 }
 .card__date:hover,
 .card__time:hover {
@@ -374,168 +385,18 @@ const handleArchive = () => {
 .card__save {
   display: none;
 }
-.card--edit .card__inner {
-  bottom: auto;
-  z-index: 2;
-  min-height: 450px;
-  border: 1px solid #000000;
-  padding-bottom: 15px;
-}
 
-.card--edit .card__inner:hover {
-  box-shadow: 0 9px 38px 0 rgba(0, 17, 45, 0.12);
-  outline: 0;
-}
-.card--edit .card__control {
-  opacity: 1;
-}
-.card--edit .card__settings {
-  margin-top: 0;
-  flex-direction: column;
-}
-.card--edit .card__img-wrap {
-  order: 1;
-  width: auto;
-  display: flex;
-  padding-bottom: 10px;
-  margin-bottom: 9px;
-  border-bottom: 2px solid #000000;
-}
-.card--edit .card__img {
-  position: static;
-  height: 80px;
-  width: auto;
-  max-width: 180px;
-}
-.card--edit .card__details {
-  display: flex;
-  flex-direction: column;
-  order: 2;
-  margin-bottom: 10px;
-}
-.card--edit .card__time,
-.card--edit .card__date {
-  font-size: 11px;
-  width: 100%;
-  margin-bottom: 10px;
-  border-bottom: 1px solid #000000;
-}
-.card--edit .card__repeat-toggle {
-  display: flex;
-  font-size: 11px;
-  font-weight: 500;
-  margin-top: 0;
-  margin-bottom: 11px;
-  text-transform: uppercase;
-  padding: 0;
-  border: 0;
-  outline: none;
-  cursor: pointer;
-  border-bottom: 1px solid #000000;
-  background-color: transparent;
-}
 .card__repeat-toggle:hover {
   opacity: 0.5;
 }
 .card__repeat-status {
   padding-left: 2px;
 }
-.card--edit .card__dates {
-  flex-direction: column;
-  align-items: flex-start;
-  border-bottom: 2px solid #000000;
-  margin-bottom: 10px;
-}
-.card--edit .card__date-deadline-toggle {
-  display: flex;
-  width: auto;
-  border: 0;
-  padding: 0;
-  margin: 0;
-  font-size: 11px;
-  text-transform: uppercase;
-  font-weight: 500;
-  text-align: left;
-  cursor: pointer;
-  margin-bottom: 10px;
-  border-bottom: 1px solid #000000;
-  outline: none;
-  background-color: transparent;
-}
-.card--edit .card__date-deadline-toggle:hover {
-  opacity: 0.5;
-}
-.card--edit .card__hashtag-list {
-  margin-bottom: 5px;
-  max-height: none;
-}
-.card--edit .card__hashtag-name {
-  position: relative;
-  background-color: transparent;
-  border-radius: 10px;
-  border: 1px solid #000000;
-  padding: 3px 15px 2px 7px;
-  color: #000000;
-  margin: 0 6px 5px 0;
-  outline: none;
-  cursor: pointer;
-  font-size: 13px;
-}
-.card--edit .card__hashtag-name:hover {
-  opacity: 0.7;
-  background-color: rgba(0, 0, 0, 0.1);
-}
+
 .card__hashtag-inner {
   position: relative;
   display: flex;
   flex-wrap: wrap;
-}
-.card--edit .card__hashtag-delete {
-  display: flex;
-  position: absolute;
-  right: 7px;
-  top: 2px;
-  font-size: 0;
-  border: 0;
-  padding: 0;
-  margin: 0;
-  width: 15px;
-  height: 16px;
-  background-color: transparent;
-}
-.card--edit .card__hashtag-delete::after {
-  content: '';
-  position: absolute;
-  background: url('../assets/close.svg') no-repeat;
-  background-size: 8px;
-  width: 8px;
-  height: 8px;
-  top: 4px;
-  right: 3px;
-  cursor: pointer;
-}
-.card--edit .card__hashtag-delete:hover::after {
-  opacity: 0.7;
-}
-.card--edit .card__hashtag-input {
-  display: flex;
-  width: 100%;
-  border: 0;
-  border-bottom: 2px solid #000000;
-  outline: none;
-  font-size: 12px;
-}
-.card--edit .card__hashtag-input::placeholder {
-  font-size: 10px;
-  color: #000000;
-}
-.card--edit .card__hashtag-input:focus {
-  border-color: #0c5cdd;
-}
-.card--edit .card__colors-inner {
-  order: 3;
-  display: flex;
-  flex-direction: column;
 }
 .card__colors-title {
   margin: 0;
@@ -570,40 +431,36 @@ const handleArchive = () => {
     0 0 0 6px #0a0a0a;
 }
 .card__color--yellow {
-  background-color: #ffe125;
+  background-color: @yellow;
 }
 .card__color-input--yellow:checked + .card__color--yellow {
   box-shadow:
     0 0 0 4px #ffffff,
-    0 0 0 6px #ffe125;
+    0 0 0 6px @yellow;
 }
 .card__color--blue {
-  background-color: #0c5cdd;
+  background-color: @blue;
 }
 .card__color-input--blue:checked + .card__color--blue {
   box-shadow:
     0 0 0 4px #ffffff,
-    0 0 0 6px #0c5cdd;
+    0 0 0 6px @blue;
 }
 .card__color--green {
-  background-color: #31b55c;
+  background-color: @green;
 }
 .card__color-input--green:checked + .card__color--green {
   box-shadow:
     0 0 0 4px #ffffff,
-    0 0 0 6px #31b55c;
+    0 0 0 6px @green;
 }
 .card__color--pink {
-  background-color: #ff3cb9;
+  background-color: @pink;
 }
 .card__color-input--pink:checked + .card__color--pink {
   box-shadow:
     0 0 0 4px #ffffff,
-    0 0 0 6px #ff3cb9;
-}
-.card--edit .card__img-wrap--empty .card__img {
-  width: 45px;
-  height: 45px;
+    0 0 0 6px @pink;
 }
 .card__repeat-days {
   border: 0;
@@ -614,66 +471,13 @@ const handleArchive = () => {
 .card__repeat-days:disabled {
   display: none;
 }
-.card--edit .card__repeat-days-inner {
-  display: flex;
-  width: 100%;
-  justify-content: space-between;
-  margin-bottom: 3px;
-}
-.card--edit .card__repeat-day {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 20px;
-  height: 20px;
-  font-size: 12px;
-  border: 1px solid #e3dede;
-  color: #e3dede;
-  cursor: pointer;
-}
-.card--edit .card__repeat-day:hover {
-  background-color: rgba(227, 222, 222, 0.2);
-}
+
 .card__repeat-day-input:checked + .card__repeat-day {
-  color: #000000;
-  border-color: #000000;
-}
-.card--edit .card__status-btns {
-  display: flex;
-  flex-direction: column;
-  margin-top: auto;
-}
-.card--edit .card__save {
-  display: flex;
-  justify-content: center;
-  border: 1px solid #000000;
-  font-size: 14px;
-  padding: 5px 0;
-  text-transform: uppercase;
-  cursor: pointer;
-  background-color: transparent;
+  color: @black;
+  border-color: @black;
 }
 .card__save:hover {
-  background-color: rgba(0, 0, 0, 0.1);
-}
-.card--edit .card__delete {
-  display: flex;
-  border: 0;
-  padding: 5px 0;
-  margin: 0;
-  background-color: transparent;
-  justify-content: center;
-  margin-top: 5px;
-  color: red;
-  text-transform: uppercase;
-  font-size: 10px;
-  cursor: pointer;
-  border: 1px solid red;
-}
-
-.card--edit .card__delete:hover {
-  opacity: 0.6;
-  background-color: rgba(255, 0, 0, 0.1);
+  background-color: rgba(@black, 0.1);
 }
 </style>
 

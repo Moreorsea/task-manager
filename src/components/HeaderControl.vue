@@ -2,7 +2,7 @@
   <section class="main__control control container">
     <h1 class="control__title">TASKMANAGER</h1>
     <section class="control__btn-wrap">
-      <button class="control__btn control__btn--create-task" @click="setTasksListState(null)">+ ADD NEW TASK</button>
+      <button class="control__btn control__btn--create-task" @click="handleAddTask">+ ADD NEW TASK</button>
 
       <router-link to="/tasks" class="control__btn">TASKS</router-link>
 
@@ -14,7 +14,12 @@
 <script lang="ts" setup>
 import { useTasksStore } from '@/stores/tasks';
 
-const { setTasksListState } = useTasksStore();
+const { setTasksListState, resetFilterAndSort } = useTasksStore();
+
+const handleAddTask = () => {
+  setTasksListState(null);
+  resetFilterAndSort();
+};
 </script>
 
 <style lang="less" scoped>

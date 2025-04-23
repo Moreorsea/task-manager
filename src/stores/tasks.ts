@@ -1,40 +1,39 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
-import { useNotification } from "@kyvg/vue3-notification";
+import { useNotification } from '@kyvg/vue3-notification';
 import axios from 'axios';
-import { API_URL, DEFAULT_REPEATING_DATE } from '@/constants/form';
+import { API_URL, DEFAULT_PAGE_SIZE, DEFAULT_REPEATING_DATE } from '@/constants/form';
 import { TaskListState } from '@/types/types';
 import { ITask } from '@/types/interfaces';
-import {
-  API_METHODS, Colors, Filters, Sorts,
-} from '@/types/enums';
-import { getTaskTimestamp, isTaskExpired, isTaskExpiringToday } from '../utils/utils';
+import { API_METHODS, Colors, Filters, Sorts } from '@/types/enums';
+import { filterTasksByType, sortedTasksByDueDate } from '../utils/utils';
 
 export const useTasksStore = defineStore('tasks', () => {
   const isCreateMode = ref(false);
   const tasks = ref<ITask[]>([]);
   const activeFilter = ref(Filters.all);
   const activeSort = ref(Sorts.default);
-  const { notify }  = useNotification();
+  const { notify } = useNotification();
+  const currentPageSize = ref(DEFAULT_PAGE_SIZE);
   // когда никаких действий не происходит - undefined, когда добавление задачи - null, когда редактирование - number
   const tasksListState = ref<TaskListState>(undefined);
 
-  const filteredTasks = computed<ITask[]>(() => {
-    switch (activeFilter.value) {
-      case Filters.overdue:
-        return tasks.value.filter((task: ITask) => isTaskExpired(task.due_date) && !task.is_archived);
-      case Filters.today:
-        return tasks.value.filter((task: ITask) => isTaskExpiringToday(task.due_date) && !task.is_archived);
-      case Filters.favorites:
-        return tasks.value.filter((task: ITask) => task.is_favorite);
-      case Filters.repeating:
-        return tasks.value.filter((task: ITask) => Object.values(task.repeating_date).some(Boolean) && !task.is_archived);
-      case Filters.archive:
-        return tasks.value.filter((task: ITask) => task.is_archived);
-      default:
-        return tasks.value.filter((task: ITask) => !task.is_archived);
-    }
+  const filteredAndSortedTasks = computed<ITask[]>(() => {
+    const filtered = filterTasksByType(tasks.value, activeFilter.value);
+
+    return sortedTasksByDueDate(filtered, activeSort.value);
   });
+
+  const paginatedTasks = computed<ITask[]>(() => filteredAndSortedTasks.value.slice(0, currentPageSize.value));
+
+  const isShowLoadMore = computed<boolean>(() => currentPageSize.value < filteredAndSortedTasks.value.length);
+
+  const handleError = (text: string) => {
+    notify({
+      title: text,
+      type: 'error',
+    });
+  };
 
   const fetchTasks = async () => {
     try {
@@ -48,24 +47,26 @@ export const useTasksStore = defineStore('tasks', () => {
     }
   };
 
+  const updatePageSize = () => {
+    currentPageSize.value += DEFAULT_PAGE_SIZE;
+  };
+
+  const resetPageSize = () => {
+    currentPageSize.value = DEFAULT_PAGE_SIZE;
+  };
+
   const setActiveSort = (sort: Sorts) => {
     activeSort.value = sort;
-
-    tasks.value = tasks.value.sort((a, b) => {
-      if (activeSort.value === Sorts.up) {
-        return getTaskTimestamp(a) - getTaskTimestamp(b);
-      }
-
-      if (activeSort.value === Sorts.down) {
-        return getTaskTimestamp(b) - getTaskTimestamp(a);
-      }
-
-      return (a.id ?? 0) - (b.id ?? 0);
-    });
+    // activeFilter.value = Filters.all;
   };
 
   const setActiveFilter = (filter: Filters) => {
     activeFilter.value = filter;
+  };
+
+  const resetFilterAndSort = () => {
+    activeFilter.value = Filters.all;
+    activeSort.value = Sorts.default;
   };
 
   const setTasksListState = (state: undefined | null | number) => {
@@ -86,9 +87,13 @@ export const useTasksStore = defineStore('tasks', () => {
         isCreateMode.value = false;
         fetchTasks();
         resetTasksListState();
+        notify({
+          title: `Задача успешно ${method === API_METHODS.put ? 'отредактирована' : 'добавлена'}`,
+          type: 'success',
+        });
       })
       .catch((err) => {
-        handleError(`При ${ method === API_METHODS.put ? 'редактировании' : 'создании' } задачи возникла ошибка. Пожалуйста, попробуйте позже.`);
+        handleError(`При ${method === API_METHODS.put ? 'редактировании' : 'создании'} задачи возникла ошибка. Пожалуйста, попробуйте позже.`);
       });
   };
 
@@ -100,20 +105,13 @@ export const useTasksStore = defineStore('tasks', () => {
 
         notify({
           title: 'Задача успешно удалена',
-          type: 'success'
+          type: 'success',
         });
       })
       .catch((err) => {
         handleError('При удалении задачи возникла ошибка. Пожалуйста, попробуйте позже.');
       });
   };
-
-  const handleError = (text: string) => {
-    notify({
-      title: text,
-      type: 'error'
-    });
-  }
 
   const createNewTask = () => {
     const newTask: ITask = {
@@ -133,8 +131,13 @@ export const useTasksStore = defineStore('tasks', () => {
     isCreateMode,
     tasks,
     tasksListState,
+    currentPageSize,
+    activeSort,
+    activeFilter,
 
-    filteredTasks,
+    paginatedTasks,
+    filteredAndSortedTasks,
+    isShowLoadMore,
 
     fetchTasks,
     createEditTask,
@@ -143,5 +146,8 @@ export const useTasksStore = defineStore('tasks', () => {
     setTasksListState,
     setActiveFilter,
     setActiveSort,
+    updatePageSize,
+    resetPageSize,
+    resetFilterAndSort,
   };
 });

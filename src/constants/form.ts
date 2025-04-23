@@ -9,3 +9,5 @@ export const DEFAULT_REPEATING_DATE = {
   sa: false,
   su: false,
 };
+
+export const DEFAULT_PAGE_SIZE = 8;

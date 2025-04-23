@@ -59,8 +59,9 @@
         <p class="error">{{ errorMessage }}</p>
 
         <div class="card__status-btns">
-          <button class="card__save" type="submit" @click.prevent="handleSave">save</button>
-          <button class="card__delete" type="button" @click="handleDelete">delete</button>
+          <button class="card__button card__button--save" type="submit" @click.prevent="handleSave">save</button>
+          <button class="card__button card__button--cancel" @click="handleDelete">cancel</button>
+          <button class="card__button card__button--delete" v-if="tasksListState !== null" @click="handleDelete">delete</button>
         </div>
       </div>
     </form>
@@ -70,12 +71,12 @@
 <script setup lang="ts">
 import { watchEffect, ref, computed } from 'vue';
 import flatPickr from 'vue-flatpickr-component';
-import Wave from './Wave.vue';
 import 'flatpickr/dist/flatpickr.css';
 import { storeToRefs } from 'pinia';
 import { useTasksStore } from '@/stores/tasks';
 import { isTaskExpired } from '@/utils/utils';
 import { API_METHODS, Colors } from '@/types/enums';
+import Wave from './Wave.vue';
 
 const props = defineProps({
   task: {
@@ -116,26 +117,6 @@ const classes = computed<string>(() => {
   return classNames.join(' ');
 });
 
-const handleSave = () => {
-  validateForm();
-
-  if (!errorMessage.value) {
-    tasksStore.createEditTask({
-      ...taskCopy.value,
-      repeating_date: JSON.stringify(taskCopy.value?.repeating_date),
-      due_date: isDate.value ? date.value : null,
-    }, taskCopy.value.id ? API_METHODS.put : API_METHODS.post);
-  }
-};
-
-const handleDelete = () => {
-  if (tasksListState.value === null || tasksStore.tasks.length === 0) {
-    tasksStore.setTasksListState(undefined);
-    return;
-  }
-  tasksStore.deleteTask(taskCopy.value.id);
-};
-
 const validateForm = () => {
   const errors = [];
 
@@ -148,6 +129,29 @@ const validateForm = () => {
   }
 
   errorMessage.value = errors.join('\n');
+};
+
+const handleSave = () => {
+  validateForm();
+
+  if (!errorMessage.value) {
+    tasksStore.createEditTask(
+      {
+        ...taskCopy.value,
+        repeating_date: JSON.stringify(taskCopy.value?.repeating_date),
+        due_date: isDate.value ? date.value : null,
+      },
+      taskCopy.value.id ? API_METHODS.put : API_METHODS.post,
+    );
+  }
+};
+
+const handleDelete = () => {
+  if (tasksListState.value === null || tasksStore.tasks.length === 0) {
+    tasksStore.setTasksListState(undefined);
+    return;
+  }
+  tasksStore.deleteTask(taskCopy.value.id);
 };
 
 watchEffect(() => {
@@ -193,8 +197,258 @@ const handleDate = () => {
 </script>
 
 <style scoped lang="less">
+@import '../style/variables.less';
 .error {
-  color: red;
+  color: @red;
 }
 
+.card--edit {
+  .card__inner {
+    bottom: auto;
+    z-index: 2;
+    min-height: 450px;
+    border: 1px solid @black;
+    padding-bottom: 15px;
+
+    &:hover {
+      box-shadow: 0 9px 38px 0 rgba(0, 17, 45, 0.12);
+      outline: 0;
+    }
+  }
+
+  .card__control {
+    opacity: 1;
+  }
+
+  .card__settings {
+    margin-top: 0;
+    flex-direction: column;
+  }
+
+  .card__img {
+    position: static;
+    height: 80px;
+    width: auto;
+    max-width: 180px;
+
+    &-wrap {
+      order: 1;
+      width: auto;
+      display: flex;
+      padding-bottom: 10px;
+      margin-bottom: 9px;
+      border-bottom: 2px solid @black;
+    }
+  }
+
+  .card__details {
+    display: flex;
+    flex-direction: column;
+    order: 2;
+    margin-bottom: 10px;
+  }
+
+  .card__time,
+  .card__date {
+    font-size: 11px;
+    width: 100%;
+    margin-bottom: 10px;
+    border-bottom: 1px solid @black;
+  }
+
+  .card__repeat-toggle {
+    display: flex;
+    font-size: 11px;
+    font-weight: 500;
+    margin-top: 0;
+    margin-bottom: 11px;
+    text-transform: uppercase;
+    padding: 0;
+    border: 0;
+    outline: none;
+    cursor: pointer;
+    border-bottom: 1px solid @black;
+    background-color: transparent;
+  }
+
+  .card__dates {
+    flex-direction: column;
+    align-items: flex-start;
+    border-bottom: 2px solid @black;
+    margin-bottom: 10px;
+  }
+
+  .card__date-deadline-toggle {
+    display: flex;
+    width: auto;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    margin-bottom: 10px;
+    border-bottom: 1px solid @black;
+    outline: none;
+    background-color: transparent;
+
+    &:hover {
+      opacity: 0.5;
+    }
+  }
+
+  .card__hashtag-list {
+    margin-bottom: 5px;
+    max-height: none;
+  }
+
+  .card__hashtag-name {
+    position: relative;
+    background-color: transparent;
+    border-radius: 10px;
+    border: 1px solid @black;
+    padding: 3px 15px 2px 7px;
+    color: @black;
+    margin: 0 6px 5px 0;
+    outline: none;
+    cursor: pointer;
+    font-size: 13px;
+
+    &:hover {
+      opacity: 0.7;
+      background-color: rgba(@black, 0.1);
+    }
+  }
+
+  .card__hashtag-delete {
+    display: flex;
+    position: absolute;
+    right: 7px;
+    top: 2px;
+    font-size: 0;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    width: 15px;
+    height: 16px;
+    background-color: transparent;
+
+    &::after {
+      content: '';
+      position: absolute;
+      background: url('../assets/close.svg') no-repeat;
+      background-size: 8px;
+      width: 8px;
+      height: 8px;
+      top: 4px;
+      right: 3px;
+      cursor: pointer;
+    }
+
+    &:hover::after {
+      opacity: 0.7;
+    }
+  }
+
+  .card__hashtag-input {
+    display: flex;
+    width: 100%;
+    border: 0;
+    border-bottom: 2px solid @black;
+    outline: none;
+    font-size: 12px;
+
+    &::placeholder {
+      font-size: 10px;
+      color: @black;
+    }
+
+    &:focus {
+      border-color: @blue;
+    }
+  }
+
+  .card__colors-inner {
+    order: 3;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card__img-wrap--empty .card__img {
+    width: 45px;
+    height: 45px;
+  }
+
+  .card__repeat-days-inner {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    margin-bottom: 3px;
+  }
+
+  .card__repeat-day {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    border: 1px solid #e3dede;
+    color: #e3dede;
+    cursor: pointer;
+
+    &:hover {
+      background-color: rgba(227, 222, 222, 0.2);
+    }
+  }
+
+  .card__status-btns {
+    display: flex;
+    flex-direction: column;
+    margin-top: auto;
+  }
+
+  .card__button {
+    display: flex;
+    text-transform: uppercase;
+    justify-content: center;
+    cursor: pointer;
+    padding: 5px 0;
+    border: none;
+    outline: none;
+    margin-bottom: 10px;
+    font-size: 12px;
+
+    &--save {
+      font-size: 14px;
+      background-color: rgba(@green, 0.8);
+      color: white;
+
+      &:hover {
+        background-color: rgba(@green, 1);
+        transition: background-color 0.2s ease-out;
+      }
+    }
+
+    &--cancel {
+      &:hover {
+        background-color: rgba(@black, 0.2);
+        transition: background-color 0.2s ease-out;
+      }
+    }
+
+    &--delete {
+      margin: 0;
+      background-color: rgba(@red, 0.5);
+      color: white;
+
+      &:hover {
+        background-color: rgba(@red, 0.7);
+        transition: background-color 0.2s ease-out;
+      }
+    }
+  }
+}
 </style>
