@@ -8,7 +8,7 @@
 
         <div class="card__textarea-wrap">
           <label>
-            <textarea class="card__text" placeholder="Start typing your text here..." v-model="taskCopy.description" name="text" />
+            <textarea class="card__text" placeholder="Start typing your text here..." minlength="1" maxlength="120" v-model="taskCopy.description" name="text" />
           </label>
         </div>
 
@@ -33,7 +33,7 @@
                 <span v-else class="card__date-status">no</span>
               </button>
               <fieldset class="card__date-deadline" v-if="isDate">
-                <flat-pickr v-model="date" :config="config" class="card__date" />
+                <flat-pickr v-model="date" :config="config" @onClose="handleDateChange" class="card__date" />
               </fieldset>
             </div>
           </div>
@@ -60,8 +60,8 @@
 
         <div class="card__status-btns">
           <button class="card__button card__button--save" type="submit" @click.prevent="handleSave">save</button>
-          <button class="card__button card__button--cancel" @click="handleDelete">cancel</button>
-          <button class="card__button card__button--delete" v-if="tasksListState !== null" @click="handleDelete">delete</button>
+          <button class="card__button card__button--cancel" @click.prevent="handleCancel">cancel</button>
+          <button class="card__button card__button--delete" v-if="tasksListState !== null" @click.prevent="handleDelete">delete</button>
         </div>
       </div>
     </form>
@@ -74,7 +74,6 @@ import flatPickr from 'vue-flatpickr-component';
 import 'flatpickr/dist/flatpickr.css';
 import { storeToRefs } from 'pinia';
 import { useTasksStore } from '@/stores/tasks';
-import { isTaskExpired } from '@/utils/utils';
 import { API_METHODS, Colors } from '@/types/enums';
 import Wave from './Wave.vue';
 
@@ -93,12 +92,10 @@ const taskCopy = ref(props.task || tasksStore.createNewTask());
 const isRepeat = ref(Object.values(taskCopy.value?.repeating_date || {}).some((el) => el));
 const isDate = ref(!!taskCopy.value?.due_date);
 const errorMessage = ref('');
-const date = ref(props.task?.due_date ?? new Date());
+const date = ref(props.task?.due_date ? new Date(props.task?.due_date).getTime() : new Date().getTime());
 
 const config = ref({
-  dateFormat: 'd M Y H:m',
-  enableTime: true,
-  time_24hr: true,
+  dateFormat: 'M d, Y',
 });
 
 const { tasksListState } = storeToRefs(tasksStore);
@@ -111,8 +108,6 @@ const classes = computed<string>(() => {
   if (isRepeat.value) {
     classNames.push('card--repeat');
   }
-
-  isTaskExpired(taskCopy.value?.due_date) && classNames.push('card--deadline');
 
   return classNames.join(' ');
 });
@@ -138,7 +133,6 @@ const handleSave = () => {
     tasksStore.createEditTask(
       {
         ...taskCopy.value,
-        repeating_date: JSON.stringify(taskCopy.value?.repeating_date),
         due_date: isDate.value ? date.value : null,
       },
       taskCopy.value.id ? API_METHODS.put : API_METHODS.post,
@@ -146,12 +140,16 @@ const handleSave = () => {
   }
 };
 
+const handleDateChange = (selectedDates: Array<Date>) => {
+  date.value = new Date(selectedDates[0]).getTime();
+};
+
 const handleDelete = () => {
-  if (tasksListState.value === null || tasksStore.tasks.length === 0) {
-    tasksStore.setTasksListState(undefined);
-    return;
-  }
   tasksStore.deleteTask(taskCopy.value.id);
+};
+
+const handleCancel = () => {
+  tasksStore.setTasksListState(undefined);
 };
 
 watchEffect(() => {

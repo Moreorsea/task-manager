@@ -11,3 +11,11 @@ export const DEFAULT_REPEATING_DATE = {
 };
 
 export const DEFAULT_PAGE_SIZE = 8;
+
+export const DATE_OPTIONS = {
+  year: 'numeric',
+  month: 'long',
+  day: '2-digit',
+};
+
+export const WEEK_IN_MILLISECONDS = 7 * 24 * 60 * 60 * 1000;

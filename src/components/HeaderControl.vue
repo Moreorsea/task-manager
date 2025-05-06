@@ -1,6 +1,6 @@
 <template>
   <section class="main__control control container">
-    <h1 class="control__title">TASKMANAGER</h1>
+    <h1 class="control__title">{{ t('global.title') }}</h1>
     <section class="control__btn-wrap">
       <button class="control__btn control__btn--create-task" @click="handleAddTask">+ ADD NEW TASK</button>
 
@@ -13,6 +13,9 @@
 
 <script lang="ts" setup>
 import { useTasksStore } from '@/stores/tasks';
+import { useTranslation } from 'i18next-vue';
+
+const { t } = useTranslation();
 
 const { setTasksListState, resetFilterAndSort } = useTasksStore();
 
@@ -42,6 +45,8 @@ const handleAddTask = () => {
     line-height: 23px;
     margin-top: 0;
     margin-bottom: 0;
+    text-transform: uppercase;
+    flex-shrink: 0;
   }
 
   &__btn {

@@ -5,7 +5,7 @@
         <h2 class="statistic__period-title">Task Activity DIAGRAM</h2>
 
         <div class="statistic-input-wrap">
-          <input class="statistic__period-input" type="text" placeholder="01 Feb - 08 Feb" />
+          <flat-pickr v-model="dateRange" :config="config" @on-change="handleChange" />
         </div>
 
         <p class="statistic__period-result">
@@ -13,59 +13,119 @@
           <span class="statistic__task-found">0</span> tasks were fulfilled.
         </p>
       </div>
-      <div class="statistic__line-graphic visually-hidden">
-        <canvas class="statistic__days" width="550" height="150" style="width: 550px; height: 150px"></canvas>
+      <div class="statistic__circle">
+        <div class="statistic__colors-wrap">
+          <PieChart :tasks="tasks" />
+        </div>
       </div>
     </div>
 
-    <div class="statistic__circle">
-      <div class="statistic__colors-wrap visually-hidden">
-        <canvas class="statistic__colors" width="400" height="300" style="width: 400px; height: 300px"></canvas>
-      </div>
+    <div class="statistic__line-graphic">
+      <BarChart :date-range="dateRange" :tasks="tasks" :days-of-range="daysOfRange" />
     </div>
   </section>
 </template>
 
+<script lang="ts" setup>
+import flatPickr from 'vue-flatpickr-component';
+import 'flatpickr/dist/flatpickr.css';
+import { computed, ref, watch, watchEffect, onMounted, onBeforeMount } from 'vue';
+import dayjs from 'dayjs';
+import { useTasksStore } from '@/stores/tasks';
+import { storeToRefs } from 'pinia';
+import { Colors } from '@/types/enums';
+import { useDateOfRange } from '@/composables/useDateOfRange';
+import PieChart from '../components/Statistic/PieChart.vue';
+import BarChart from '../components/Statistic/BarChart.vue';
+
+const tasksStore = useTasksStore();
+const { tasks } = storeToRefs(tasksStore);
+
+const { config, handleChange, dateRange, daysOfRange } = useDateOfRange();
+
+onBeforeMount(() => {
+  if (tasks.value.length === 0) tasksStore.fetchTasks();
+});
+
+// const filteredTasks = computed(() => {
+//   const tasksArray = tasks.value.reduce(
+//     (sum, task) => {
+//       if (!task.due_date) return sum;
+
+//       const dueDate = dayjs(task.due_date, 'DD MMM YYYY HH:mm', 'en', true);
+
+//       if (dueDate.isBetween(startDate, endDate)) {
+//         const dateAsString = dueDate.format('DD.MM.YYYY');
+
+//         sum[dateAsString] += 1;
+//       }
+
+//       return sum;
+//     },
+//     { ...daysOfRange.value },
+//   );
+
+//   return tasksArray;
+// });
+</script>
+
 <style lang="less">
 @import '../style/variables.less';
+
+.flatpickr-input {
+  font-family: 'HelveticaNeueCyr';
+  padding: 5px;
+  width: 155px;
+}
 
 .statistic {
   padding-top: 50px;
   padding-bottom: 50px;
-}
-.statistic__line {
-  display: flex;
-  padding-bottom: 20px;
-  border-bottom: 5px solid @black;
-}
-.statistic__period {
-  width: 230px;
-  margin-right: 80px;
-}
-.statistic__period-title {
-  margin-top: 0;
-  font-size: 18px;
-  text-transform: uppercase;
-}
-.statistic-input-wrap {
-  display: flex;
-  width: 100%;
-}
-.statistic__period-input {
-  padding: 8px 0 4px 20px;
-  margin: 0;
-  border: 1px solid @black;
-  font-size: 14px;
-  width: 100%;
-  color: @black;
-}
-.statistic__period-result {
-  font-size: 14px;
-  font-weight: 500;
-}
-.statistic__circle {
-  padding-top: 20px;
-  display: flex;
-  justify-content: space-between;
+
+  &__line {
+    display: flex;
+    padding-bottom: 20px;
+
+    &-graphic {
+      margin-top: 30px;
+    }
+  }
+
+  &__period {
+    width: 330px;
+    margin-right: 80px;
+    font-size: 14px;
+    font-weight: 500;
+
+    &-result {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    &-title {
+      margin-top: 0;
+      font-size: 18px;
+      text-transform: uppercase;
+    }
+
+    &-input {
+      padding: 8px 0 4px 20px;
+      margin: 0;
+      border: 1px solid @black;
+      font-size: 14px;
+      width: 100%;
+      color: @black;
+    }
+  }
+
+  &-input-wrap {
+    display: flex;
+    width: 100%;
+  }
+
+  &__circle {
+    display: flex;
+    justify-content: space-between;
+  }
 }
 </style>

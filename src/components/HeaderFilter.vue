@@ -11,12 +11,6 @@
         {{ filter }} {{ count }}
       </li>
     </ul>
-
-    <!-- <ul>
-      <li v-for="option in filterOptions" :key="option">
-        {{ option }}
-      </li>
-    </ul> -->
   </section>
 </template>
 
@@ -33,25 +27,12 @@ const { tasks, activeFilter } = storeToRefs(tasksStore);
 
 const filters = {
   [Filters.all]: computed<number>(() => tasks.value.filter((task: ITask) => !task.is_archived).length),
-  [Filters.overdue]: computed<number>(() => tasks.value.filter((task: ITask) => isTaskExpired(task.due_date) && !task.is_archived).length),
-  [Filters.today]: computed<number>(() => tasks.value.filter((task: ITask) => isTaskExpiringToday(task.due_date) && !task.is_archived).length),
+  [Filters.overdue]: computed<number>(() => tasks.value.filter((task: ITask) => task.due_date && isTaskExpired(task.due_date) && !task.is_archived).length),
+  [Filters.today]: computed<number>(() => tasks.value.filter((task: ITask) => task.due_date && isTaskExpiringToday(task.due_date) && !task.is_archived).length),
   [Filters.favorites]: computed<number>(() => tasks.value.filter((task: ITask) => task.is_favorite).length),
   [Filters.repeating]: computed<number>(() => tasks.value.filter((task: ITask) => task?.repeating_date && Object.values(task?.repeating_date).some(Boolean) && !task.is_archived).length),
   [Filters.archive]: computed<number>(() => tasks.value.filter((task: ITask) => task.is_archived).length),
 };
-
-const filterCounts = computed(() => ({
-  [Filters.all]: tasks.value.filter((task: ITask) => !task.is_archived).length,
-  [Filters.overdue]: tasks.value.filter((task: ITask) => isTaskExpired(task.due_date) && !task.is_archived).length,
-  [Filters.today]: tasks.value.filter((task: ITask) => isTaskExpiringToday(task.due_date) && !task.is_archived).length,
-  [Filters.favorites]: tasks.value.filter((task: ITask) => task.is_favorite).length,
-  [Filters.repeating]: tasks.value.filter((task: ITask) => task?.repeating_date && Object.values(task?.repeating_date).some(Boolean) && !task.is_archived).length,
-  [Filters.archive]: tasks.value.filter((task: ITask) => task.is_archived).length,
-}));
-
-const options = computed(() => {
-  return Object.entries(filterCounts.value).map(([filter, count]) => ({ filter, count }));
-});
 
 const handleFilter = (filter: Filters): void => {
   tasksStore.setActiveFilter(filter);

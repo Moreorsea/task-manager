@@ -1,5 +1,5 @@
 <template>
-  <section class="board container">
+  <section class="board container" @keyup.esc="handleKeyUpEsc">
     <HeaderSort v-if="paginatedTasks.length" />
 
     <div class="board__tasks">
@@ -28,6 +28,11 @@ import { computed } from 'vue';
 const tasksStore = useTasksStore();
 const { tasksListState, paginatedTasks, isShowLoadMore } = storeToRefs(tasksStore);
 const showTasksNoLength = computed(() => paginatedTasks.value.length === 0 && tasksListState.value === undefined);
+
+const handleKeyUpEsc = () => {
+  console.log('ESC');
+  tasksStore.setTasksListState(undefined);
+};
 </script>
 
 <style lang="less">
@@ -59,9 +64,10 @@ const showTasksNoLength = computed(() => paginatedTasks.value.length === 0 && ta
   cursor: pointer;
   margin-top: auto;
   outline: none;
-}
-.load-more:hover {
-  background-color: rgba(@black, 0.1);
-  opacity: 0.8;
+
+  &:hover {
+    background-color: rgba(@black, 0.1);
+    opacity: 0.8;
+  }
 }
 </style>

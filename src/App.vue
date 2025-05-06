@@ -5,14 +5,34 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted } from 'vue';
+import { onMounted, onUnmounted, watchEffect } from 'vue';
+import { useRoute } from 'vue-router';
 import Header from './components/Header.vue';
 import { useTasksStore } from './stores/tasks';
 
 const tasksStore = useTasksStore();
+const route = useRoute();
+
+const handleEsc = (event: KeyboardEvent): void => {
+  if (event.key === 'Escape') {
+    tasksStore.setTasksListState(undefined);
+  }
+};
+
+watchEffect(() => {
+  if (route.path === '/tasks') {
+    window.addEventListener('keyup', handleEsc);
+  } else {
+    window.removeEventListener('keyup', handleEsc);
+  }
+});
 
 onMounted(async () => {
   await tasksStore.fetchTasks();
+});
+
+onUnmounted(() => {
+  window.removeEventListener('keyup', handleEsc);
 });
 </script>
 

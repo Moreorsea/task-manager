@@ -57,7 +57,6 @@ export const useTasksStore = defineStore('tasks', () => {
 
   const setActiveSort = (sort: Sorts) => {
     activeSort.value = sort;
-    // activeFilter.value = Filters.all;
   };
 
   const setActiveFilter = (filter: Filters) => {
@@ -78,15 +77,21 @@ export const useTasksStore = defineStore('tasks', () => {
   };
 
   const createEditTask = (task: ITask, method: API_METHODS) => {
+    const date = task.due_date ? new Date(task.due_date) : null;
     axios({
       method,
       url: method === API_METHODS.put ? `${API_URL}/${task.id}` : `${API_URL}`,
-      data: task,
+      data: {
+        ...task,
+        due_date: task.due_date ? date.getTime() : null,
+        repeating_date: JSON.stringify(task.repeating_date),
+      },
     })
       .then(() => {
         isCreateMode.value = false;
         fetchTasks();
         resetTasksListState();
+        setTasksListState(undefined);
         notify({
           title: `Задача успешно ${method === API_METHODS.put ? 'отредактирована' : 'добавлена'}`,
           type: 'success',
