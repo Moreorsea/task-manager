@@ -7,7 +7,7 @@ i18next.use(Backend).init({
   ns: ['common'],
   defaultNS: 'common',
   backend: {
-    loadPath: '/locales/{{lng}}/{{ns}}.json',
+    loadPath: `${import.meta.env.BASE_URL}locales/{{lng}}/{{ns}}.json`,
   },
   interpolation: {
     escapeValue: false,

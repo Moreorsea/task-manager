@@ -22,3 +22,6 @@ npm run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+
+Проект доступен по ссылке: https://moreorsea.github.io/task-manager/#/tasks

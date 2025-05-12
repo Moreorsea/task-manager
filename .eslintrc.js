@@ -5,13 +5,15 @@ module.exports = {
     es2021: true,
     node: true,
   },
-  parser: 'vue-eslint-parser',
   parserOptions: {
+    ecmaVersion: 'latest',
     parser: '@typescript-eslint/parser',
-    ecmaVersion: 2021,
-    sourceType: 'module',
+    sourceType: 'module'
   },
-  extends: ['plugin:vue/vue3-recommended', 'eslint:recommended', 'plugin:@typescript-eslint/recommended', 'prettier'],
+  extends: [ 'plugin:vue/vue3-recommended',
+  'eslint:recommended',
+  '@vue/eslint-config-typescript',
+  '@vue/eslint-config-prettier'],
   plugins: ['@typescript-eslint', 'prettier'],
   rules: {
     'vue/multi-word-component-names': 'off',
