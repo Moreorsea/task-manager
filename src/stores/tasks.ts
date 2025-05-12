@@ -6,7 +6,7 @@ import { API_URL, DEFAULT_PAGE_SIZE, DEFAULT_REPEATING_DATE } from '@/constants/
 import { TaskListState } from '@/types/types';
 import { ITask } from '@/types/interfaces';
 import { API_METHODS, Colors, Filters, Sorts } from '@/types/enums';
-import { filterTasksByType, sortedTasksByDueDate } from '../utils/utils';
+import { filterTasksByType, sortedTasksByDueDate } from '../utils/tasks';
 
 export const useTasksStore = defineStore('tasks', () => {
   const isCreateMode = ref(false);

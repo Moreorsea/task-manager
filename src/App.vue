@@ -7,7 +7,7 @@
 <script lang="ts" setup>
 import { onMounted, onUnmounted, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
-import Header from './components/Header.vue';
+import Header from './components/Header/Header.vue';
 import { useTasksStore } from './stores/tasks';
 
 const tasksStore = useTasksStore();

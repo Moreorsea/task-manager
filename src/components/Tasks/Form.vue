@@ -193,7 +193,7 @@ const handleDate = () => {
 </script>
 
 <style scoped lang="less">
-@import '../style/variables.less';
+@import '../../style/variables.less';
 .error {
   color: @red;
 }

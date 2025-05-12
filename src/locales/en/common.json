@@ -4,5 +4,18 @@
     "addTask": "+ Add new task",
     "tasks": "Tasks",
     "statistics": "Statistics"
+  },
+  "filters": {
+    "all": "All",
+    "overdue": "Overdue",
+    "today": "Today",
+    "favorites": "Favorites",
+    "repeating": "Repeating",
+    "archive": "Archive"
+  },
+  "sorts": {
+    "default": "Sort by default",
+    "up": "Sort by date up",
+    "down": "Sort by date down"
   }
 }

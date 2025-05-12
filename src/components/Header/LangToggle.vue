@@ -12,33 +12,13 @@
 import i18next from 'i18next';
 import { ref, onMounted, onBeforeMount } from 'vue';
 
-const currentLanguage = ref(i18next.resolvedLanguage || 'en');
+const currentLanguage = ref(localStorage.getItem('i18nextLng') || 'en');
 type langs = 'ru' | 'en';
 
 const handleLanguageChange = (lng: langs) => {
-  if (lng !== currentLanguage.value) {
-    i18next
-      .changeLanguage(lng)
-      .then(() => {
-        currentLanguage.value = lng;
-      })
-      .catch((err: Error) => {
-        console.error('Language change failed:', err);
-      });
-  }
-};
-
-const languageChangedHandler = (lng: langs) => {
+  i18next.changeLanguage(lng);
   currentLanguage.value = lng;
 };
-
-onMounted(() => {
-  i18next.on('languageChanged', languageChangedHandler);
-});
-
-onBeforeMount(() => {
-  i18next.off('languageChanged', languageChangedHandler);
-});
 </script>
 
 <style scoped lang="less">

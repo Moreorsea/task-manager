@@ -39,7 +39,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 import { useTasksStore } from '@/stores/tasks';
-import { isTaskExpired } from '@/utils/utils';
+import { isTaskExpired } from '@/utils/date';
 import { storeToRefs } from 'pinia';
 import { API_METHODS } from '@/types/enums';
 import { DATE_OPTIONS } from '@/constants/form';
@@ -102,7 +102,7 @@ const handleArchive = () => {
 </script>
 
 <style lang="less">
-@import '../style/variables.less';
+@import '../../style/variables.less';
 
 .card {
   position: relative;

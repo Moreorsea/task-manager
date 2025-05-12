@@ -24,10 +24,10 @@
 </template>
 
 <script lang="ts" setup>
-import TaskCard from '@/components/TaskCard.vue';
-import Form from '@/components/Form.vue';
-import HeaderSort from '@/components/HeaderSort.vue';
-import NoTasks from '@/components/NoTasks.vue';
+import TaskCard from '@/components/Tasks/TaskCard.vue';
+import Form from '@/components/Tasks/Form.vue';
+import HeaderSort from '@/components/Header/HeaderSort.vue';
+import NoTasks from '@/components/Tasks/NoTasks.vue';
 import { useTasksStore } from '@/stores/tasks';
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
@@ -47,17 +47,16 @@ const handleKeyUpEsc = () => {
 <style lang="less">
 @import '../style/variables.less';
 
-.board__tasks {
+.board {
+  margin-top: -10px;
+
+  &__tasks {
   display: flex;
   flex-flow: row wrap;
   align-items: flex-start;
   min-height: 500px;
   margin-right: -40px;
 }
-.board__no-tasks {
-  text-align: center;
-  text-transform: uppercase;
-  width: 100%;
 }
 
 // load more

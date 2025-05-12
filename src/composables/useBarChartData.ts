@@ -1,6 +1,6 @@
 import { watch, Ref, computed, ref } from 'vue';
 import { ITask } from '@/types/interfaces';
-import { isDateBetween, timestampToDate } from '@/utils/utils';
+import { isDateBetween, timestampToDate } from '@/utils/date';
 
 export const useBarChartData = (tasks: Ref<ITask[]>, startDate: Ref<Date>, endDate: Ref<Date>, daysOfRange: Ref<Record<string, number>>) => {
   const chartOptions = {

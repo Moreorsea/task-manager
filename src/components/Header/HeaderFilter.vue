@@ -8,7 +8,7 @@
         :class="{ 'filter__item--active': activeFilter === filter, 'filter__item--disabled': count.value === 0 }"
         @click="handleFilter(filter)"
       >
-        {{ filter }} {{ count }}
+        {{ t(`filters.${filter}`) }} {{ count }}
       </li>
     </ul>
   </section>
@@ -17,10 +17,13 @@
 <script setup lang="ts">
 import { useTasksStore } from '@/stores/tasks';
 import { storeToRefs } from 'pinia';
-import { isTaskExpired, isTaskExpiringToday } from '@/utils/utils';
+import { isTaskExpired, isTaskExpiringToday } from '@/utils/date';
 import { computed } from 'vue';
 import { ITask } from '@/types/interfaces';
 import { Filters } from '@/types/enums';
+import { useTranslation } from 'i18next-vue';
+
+const { t } = useTranslation();
 
 const tasksStore = useTasksStore();
 const { tasks, activeFilter } = storeToRefs(tasksStore);
@@ -41,7 +44,7 @@ const handleFilter = (filter: Filters): void => {
 </script>
 
 <style lang="less" scoped>
-@import '../style/normalize.less';
+@import '../../style/normalize.less';
 
 .filter {
   justify-content: space-between;

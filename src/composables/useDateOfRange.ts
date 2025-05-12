@@ -1,4 +1,4 @@
-import { dateToTimestamp } from '@/utils/utils';
+import { dateToTimestamp } from '@/utils/date';
 import dayjs from 'dayjs';
 import { onMounted, ref, watch } from 'vue';
 
