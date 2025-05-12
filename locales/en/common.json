@@ -1,8 +1,0 @@
-{
-  "global": {
-    "title": "Taskmanager",
-    "addTask": "+ Add new task",
-    "tasks": "Tasks",
-    "statistics": "Statistics"
-  }
-}
