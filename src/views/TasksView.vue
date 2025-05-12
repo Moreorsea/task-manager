@@ -10,7 +10,14 @@
       <TaskCard v-for="task in paginatedTasks" :key="task.id" :task="task" />
     </div>
 
-    <button v-if="isShowLoadMore" class="load-more" type="button" @click="tasksStore.updatePageSize">load more</button>
+    <button
+      v-if="isShowLoadMore"
+      class="load-more"
+      type="button"
+      @click="tasksStore.updatePageSize"
+    >
+      load more
+    </button>
   </section>
 
   <notifications position="top right" />
@@ -27,7 +34,9 @@ import { computed } from 'vue';
 
 const tasksStore = useTasksStore();
 const { tasksListState, paginatedTasks, isShowLoadMore } = storeToRefs(tasksStore);
-const showTasksNoLength = computed(() => paginatedTasks.value.length === 0 && tasksListState.value === undefined);
+const showTasksNoLength = computed(
+  () => paginatedTasks.value.length === 0 && tasksListState.value === undefined
+);
 
 const handleKeyUpEsc = () => {
   console.log('ESC');

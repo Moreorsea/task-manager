@@ -5,26 +5,32 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint",
-    "format": "prettier --write src/"
+    "lint": "eslint . --ext .js,.ts,.vue --fix",
+    "format": "prettier --write src/",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@kyvg/vue3-notification": "^3.4.1",
     "@panter/vue-i18next": "^0.15.2",
+    "@types/i18next": "^13.0.0",
     "axios": "^1.8.4",
     "chart.js": "^4.4.9",
     "dayjs": "^1.11.13",
     "flatpickr": "^4.6.13",
-    "i18next": "^25.1.1",
+    "i18next": "^25.1.2",
     "i18next-http-backend": "^3.0.2",
     "i18next-vue": "^5.3.0",
     "pinia": "^3.0.1",
+    "tslint": "^6.1.3",
     "vue": "^3.2.13",
     "vue-chartjs": "^5.3.2",
     "vue-flatpickr-component": "^12.0.0",
     "vue-router": "^4.0.3"
   },
   "devDependencies": {
+    "@stylistic/eslint-plugin-js": "^4.2.0",
+    "@types/node": "^22.15.17",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
     "@vue/cli-plugin-eslint": "~5.0.0",
@@ -34,37 +40,17 @@
     "@vue/eslint-config-airbnb": "^6.0.0",
     "@vue/eslint-config-typescript": "^9.1.0",
     "eslint": "^7.32.0",
+    "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-prettier": "^5.4.0",
     "eslint-plugin-vue": "^8.0.3",
     "eslint-plugin-vuejs-accessibility": "^1.1.0",
+    "gh-pages": "^6.3.0",
     "less": "^4.3.0",
     "less-loader": "^12.2.0",
     "prettier": "^3.5.3",
-    "typescript": "~4.5.5"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true,
-      "vue/setup-compiler-macros": true
-    },
-    "extends": [
-      "plugin:vue/vue3-essential",
-      "@vue/airbnb",
-      "@vue/typescript/recommended"
-    ],
-    "parserOptions": {
-      "ecmaVersion": 2020
-    },
-    "rules": {
-      "vue/multi-word-component-names": "off",
-      "no-tabs": "off",
-      "vuejs-accessibility/label-has-for": "off",
-      "max-len": "off",
-      "vuejs-accessibility/form-control-has-label": "off",
-      "camelcase": "off",
-      "no-unused-expressions": "off"
-    }
+    "typescript": "^5.8.3",
+    "vue-eslint-parser": "^10.1.3"
   },
   "browserslist": [
     "> 1%",

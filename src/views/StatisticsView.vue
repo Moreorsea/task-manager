@@ -15,13 +15,13 @@
       </div>
       <div class="statistic__circle">
         <div class="statistic__colors-wrap">
-          <PieChart :tasks="tasks" />
+          <pie-chart :tasks="tasks" />
         </div>
       </div>
     </div>
 
     <div class="statistic__line-graphic">
-      <BarChart :date-range="dateRange" :tasks="tasks" :days-of-range="daysOfRange" />
+      <bar-chart :date-range="dateRange" :tasks="tasks" :days-of-range="daysOfRange" />
     </div>
   </section>
 </template>
@@ -29,11 +29,10 @@
 <script lang="ts" setup>
 import flatPickr from 'vue-flatpickr-component';
 import 'flatpickr/dist/flatpickr.css';
-import { computed, ref, watch, watchEffect, onMounted, onBeforeMount } from 'vue';
-import dayjs from 'dayjs';
+import { onBeforeMount } from 'vue';
+
 import { useTasksStore } from '@/stores/tasks';
 import { storeToRefs } from 'pinia';
-import { Colors } from '@/types/enums';
 import { useDateOfRange } from '@/composables/useDateOfRange';
 import PieChart from '../components/Statistic/PieChart.vue';
 import BarChart from '../components/Statistic/BarChart.vue';
@@ -46,27 +45,6 @@ const { config, handleChange, dateRange, daysOfRange } = useDateOfRange();
 onBeforeMount(() => {
   if (tasks.value.length === 0) tasksStore.fetchTasks();
 });
-
-// const filteredTasks = computed(() => {
-//   const tasksArray = tasks.value.reduce(
-//     (sum, task) => {
-//       if (!task.due_date) return sum;
-
-//       const dueDate = dayjs(task.due_date, 'DD MMM YYYY HH:mm', 'en', true);
-
-//       if (dueDate.isBetween(startDate, endDate)) {
-//         const dateAsString = dueDate.format('DD.MM.YYYY');
-
-//         sum[dateAsString] += 1;
-//       }
-
-//       return sum;
-//     },
-//     { ...daysOfRange.value },
-//   );
-
-//   return tasksArray;
-// });
 </script>
 
 <style lang="less">

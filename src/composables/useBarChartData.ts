@@ -15,7 +15,7 @@ export const useBarChartData = (tasks: Ref<ITask[]>, startDate: Ref<Date>, endDa
       },
     },
   };
-  const filteredTasks: Record<string, number> = ref({});
+  const filteredTasks = ref<Record<number, number>>({});
 
   const getFilteredTasks = () => {
     const newTasks: Record<string, number> = { ...daysOfRange.value };

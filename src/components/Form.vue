@@ -8,7 +8,7 @@
 
         <div class="card__textarea-wrap">
           <label>
-            <textarea class="card__text" placeholder="Start typing your text here..." minlength="1" maxlength="120" v-model="taskCopy.description" name="text" />
+            <textarea v-model="taskCopy.description" class="card__text" placeholder="Start typing your text here..." minlength="1" maxlength="120" name="text" />
           </label>
         </div>
 
@@ -18,10 +18,10 @@
               <button class="card__repeat-toggle" type="button" @click="handleRepeat">
                 repeat:<span class="card__repeat-status">{{ isRepeat ? 'yes' : 'no' }}</span>
               </button>
-              <fieldset class="card__repeat-days" v-if="isRepeat">
+              <fieldset v-if="isRepeat" class="card__repeat-days">
                 <div class="card__repeat-days-inner">
                   <template v-for="day in RepeatingDays" :key="day">
-                    <input class="visually-hidden card__repeat-day-input" type="checkbox" :id="`repeat-${day}-4`" name="repeat" :value="day" :checked="taskCopy?.repeating_date[day]" />
+                    <input :id="`repeat-${day}-4`" class="visually-hidden card__repeat-day-input" type="checkbox" name="repeat" :value="day" :checked="taskCopy?.repeating_date[day]" />
                     <label class="card__repeat-day" :for="`repeat-${day}-4`" @click="handleDay(day)">{{ day }}</label>
                   </template>
                 </div>
@@ -32,8 +32,8 @@
                 <span v-if="isDate" class="card__date-status">yes</span>
                 <span v-else class="card__date-status">no</span>
               </button>
-              <fieldset class="card__date-deadline" v-if="isDate">
-                <flat-pickr v-model="date" :config="config" @onClose="handleDateChange" class="card__date" />
+              <fieldset v-if="isDate" class="card__date-deadline">
+                <flat-pickr v-model="date" :config="config" class="card__date" @on-сlose="handleDateChange" />
               </fieldset>
             </div>
           </div>
@@ -43,8 +43,8 @@
             <ul class="card__colors-wrap">
               <li v-for="color in Colors" :key="color">
                 <input
-                  type="radio"
                   :id="`color-${color}-4`"
+                  type="radio"
                   :class="`card__color-input card__color-input--${color} visually-hidden`"
                   name="color"
                   :value="`${color}`"
@@ -61,7 +61,7 @@
         <div class="card__status-btns">
           <button class="card__button card__button--save" type="submit" @click.prevent="handleSave">save</button>
           <button class="card__button card__button--cancel" @click.prevent="handleCancel">cancel</button>
-          <button class="card__button card__button--delete" v-if="tasksListState !== null" @click.prevent="handleDelete">delete</button>
+          <button v-if="tasksListState !== null" class="card__button card__button--delete" @click.prevent="handleDelete">delete</button>
         </div>
       </div>
     </form>
@@ -83,8 +83,6 @@ const props = defineProps({
     required: false,
   },
 });
-
-const emit = defineEmits(['save']);
 
 const tasksStore = useTasksStore();
 

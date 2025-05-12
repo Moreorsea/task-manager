@@ -18,9 +18,9 @@
           <p class="card__text">{{ task.description }}</p>
         </div>
 
-        <div class="card__days" v-if="isRepeatingTask(props.task?.repeating_date)">Task repetition days: {{ repeatingDays }}</div>
+        <div v-if="isRepeatingTask(props.task?.repeating_date)" class="card__days">Task repetition days: {{ repeatingDays }}</div>
 
-        <div class="card__settings" v-if="task.due_date">
+        <div v-if="task.due_date" class="card__settings">
           <div class="card__details">
             <div class="card__dates">
               <div class="card__date-deadline">

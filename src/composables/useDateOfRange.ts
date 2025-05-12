@@ -42,7 +42,7 @@ export const useDateOfRange = () => {
   });
 
   const handleChange = (selectedDates: Date[]) => {
-    if (selectedDates.length === 2 && selectedDates[0].getTime() === dateRange.value[0].getTime() && selectedDates[1].getTime() === dateRange.value[1].getTime()) return;
+    if (selectedDates.length === 2 && selectedDates[0].getTime() === isValidDate(dateRange.value[0]) && selectedDates[1]?.getTime() === isValidDate(dateRange.value[1])) return;
 
     if (selectedDates.length === 1) {
       dateRange.value = [selectedDates[0], dayjs(selectedDates[0]).add(1, 'week').toDate()];
@@ -50,6 +50,14 @@ export const useDateOfRange = () => {
     }
 
     dateRange.value = selectedDates;
+  };
+
+  const isValidDate = (date: Date | string) => {
+    if (date instanceof Date) {
+      return date.getTime();
+    }
+
+    return date;
   };
 
   return {

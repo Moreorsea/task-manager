@@ -12,7 +12,7 @@ export const DEFAULT_REPEATING_DATE = {
 
 export const DEFAULT_PAGE_SIZE = 8;
 
-export const DATE_OPTIONS = {
+export const DATE_OPTIONS: Intl.DateTimeFormatOptions = {
   year: 'numeric',
   month: 'long',
   day: '2-digit',

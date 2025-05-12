@@ -1,11 +1,11 @@
 import { useTasksStore } from '@/stores/tasks';
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
+import { createRouter, createWebHashHistory, createWebHistory, RouteRecordRaw } from 'vue-router';
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/tasks',
     name: 'tasks',
-    component: () => import(/* webpackChunkName: "about" */ '../views/TasksView.vue'),
+    component: () => import('../views/TasksView.vue'),
     beforeEnter: (to, from, next) => {
       const tasksStore = useTasksStore();
       tasksStore.resetPageSize();
@@ -15,15 +15,16 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/statistics',
     name: 'statistics',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/StatisticsView.vue'),
+    component: () => import('../views/StatisticsView.vue'),
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/tasks',
   },
 ];
 
 const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
+  history: createWebHashHistory(),
   routes,
 });
 

@@ -1,6 +1,8 @@
 const path = require('path');
+const repoName = 'task-manager';
 
 module.exports = {
+  publicPath: process.env.NODE_ENV === 'production' ? `/${repoName}/` : '/',
   devServer: {
     client: {
       overlay: false,

@@ -2,11 +2,11 @@
   <section class="main__control control container">
     <h1 class="control__title">{{ t('global.title') }}</h1>
     <section class="control__btn-wrap">
-      <button class="control__btn control__btn--create-task" @click="handleAddTask">+ ADD NEW TASK</button>
+      <button class="control__btn control__btn--create-task" @click="handleAddTask">{{ t('global.addTask') }}</button>
 
-      <router-link to="/tasks" class="control__btn">TASKS</router-link>
+      <router-link to="/tasks" class="control__btn">{{ t('global.tasks') }}</router-link>
 
-      <router-link to="/statistics" class="control__btn">STATISTICS</router-link>
+      <router-link to="/statistics" class="control__btn">{{ t('global.statistics') }}</router-link>
     </section>
   </section>
 </template>
@@ -57,6 +57,7 @@ const handleAddTask = () => {
     text-decoration: none;
     margin-left: 54px;
     cursor: pointer;
+    text-transform: uppercase;
 
     &:hover {
       opacity: 0.7;
@@ -69,6 +70,7 @@ const handleAddTask = () => {
       border: none;
       outline: none;
       font-weight: bold;
+      text-transform: uppercase;
     }
   }
 }

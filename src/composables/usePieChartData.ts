@@ -1,5 +1,5 @@
 import { ITask } from '@/types/interfaces';
-import { computed, toRef, ref, Ref, watchEffect } from 'vue';
+import { computed, Ref } from 'vue';
 import { Colors } from '@/types/enums';
 
 export const usePieChartData = (tasks: Ref<ITask[]>) => {

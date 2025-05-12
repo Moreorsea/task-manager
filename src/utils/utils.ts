@@ -28,7 +28,7 @@ export const isTaskExpiringToday = (date: string) => isDateToday(date);
 
 export const getTaskTimestamp = (task: ITask, sort: Sorts) => (task.due_date ? new Date(task.due_date).getTime() : sort === Sorts.down ? -Infinity : Infinity);
 
-export const isDateBetween = (currentDate: Date, endDate: Date, startDate: Date) => currentDate >= startDate && currentDate <= endDate;
+export const isDateBetween = (currentDate: Date | string, endDate: Date, startDate: Date) => currentDate >= startDate && currentDate <= endDate;
 
 export const dateToTimestamp = (dateString: string) => {
   const [d, m, y] = dateString.split('.').map(Number);

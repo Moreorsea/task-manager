@@ -40,7 +40,7 @@ export const useTasksStore = defineStore('tasks', () => {
       const { data } = await axios.get(`${API_URL}`);
       tasks.value = data.map((task: ITask) => ({
         ...task,
-        repeating_date: JSON.parse(task.repeating_date),
+        repeating_date: typeof task.repeating_date === 'string' ? JSON.parse(task.repeating_date) : task.repeating_date,
       }));
     } catch (error) {
       handleError('При загрузке задач возникла ошибка. Пожалуйста, попробуйте позже.');
@@ -83,7 +83,7 @@ export const useTasksStore = defineStore('tasks', () => {
       url: method === API_METHODS.put ? `${API_URL}/${task.id}` : `${API_URL}`,
       data: {
         ...task,
-        due_date: task.due_date ? date.getTime() : null,
+        due_date: task.due_date ? date?.getTime() : null,
         repeating_date: JSON.stringify(task.repeating_date),
       },
     })
@@ -97,7 +97,7 @@ export const useTasksStore = defineStore('tasks', () => {
           type: 'success',
         });
       })
-      .catch((err) => {
+      .catch(() => {
         handleError(`При ${method === API_METHODS.put ? 'редактировании' : 'создании'} задачи возникла ошибка. Пожалуйста, попробуйте позже.`);
       });
   };
@@ -113,7 +113,7 @@ export const useTasksStore = defineStore('tasks', () => {
           type: 'success',
         });
       })
-      .catch((err) => {
+      .catch(() => {
         handleError('При удалении задачи возникла ошибка. Пожалуйста, попробуйте позже.');
       });
   };
