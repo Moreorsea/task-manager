@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && touch dist/.nojekyll",
     "lint": "eslint . --ext .js,.ts,.vue --fix",
     "format": "prettier --write src/",
     "predeploy": "npm run build",
