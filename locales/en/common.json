@@ -6,16 +6,49 @@
     "statistics": "Statistics"
   },
   "filters": {
-    "all": "All",
-    "overdue": "Overdue",
-    "today": "Today",
-    "favorites": "Favorites",
-    "repeating": "Repeating",
-    "archive": "Archive"
+    "all": "All {{count}}",
+    "overdue": "Overdue {{count}}",
+    "today": "Today {{count}}",
+    "favorites": "Favorites {{count}}",
+    "repeating": "Repeating {{count}}",
+    "archive": "Archive {{count}}"
   },
   "sorts": {
     "default": "Sort by default",
     "up": "Sort by date up",
     "down": "Sort by date down"
+  },
+  "tasks": {
+    "loadMore": "Load more",
+    "noTasks": "Click «ADD NEW TASK» in menu to create your first task",
+    "repetitionDays": "Task repetition days: {{days}}"
+  },
+  "form": {
+    "placeholder": "Start typing your text here...",
+    "repeat": "Repeat:",
+    "date": "Date:",
+    "color": "Color",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "statistics": {
+    "title": "Task Activity DIAGRAM",
+    "amountForPeriod": "In total for the specified period {{count}} tasks",
+    "barTitle": "Schedule of tasks for the selected period",
+    "pieTitle": "Ratio of all tasks by colors",
+    "pieColors": {
+      "black": "Black",
+      "yellow": "Yellow",
+      "blue": "Blue",
+      "green": "Green",
+      "pink": "Pink"
+    }
+  },
+  "errors": {
+    "errorTaskNoName": "Please enter a task name",
+    "errorTaskNoRepeat": "Please enter repeat days"
   }
 }
