@@ -1,9 +1,9 @@
 <template>
   <section class="toggle__container">
     <div class="toggle">
-      <span class="toggle__text" @click="localeStore.handleLanguageChange('ru')">ru</span>
-      <div class="toggle__switch" :class="{ ru: currentLanguage === 'ru', en: currentLanguage === 'en' }"></div>
-      <span class="toggle__text" @click="localeStore.handleLanguageChange('en')">en</span>
+      <span class="toggle__text" @click="localeStore.handleLanguageChange(LangsEnum.ru)">ru</span>
+      <div class="toggle__switch" :class="{ ru: currentLanguage === LangsEnum.ru, en: currentLanguage === LangsEnum.en }"></div>
+      <span class="toggle__text" @click="localeStore.handleLanguageChange(LangsEnum.en)">en</span>
     </div>
   </section>
 </template>
@@ -11,6 +11,7 @@
 <script setup lang="ts">
 import { useLocalesStore } from '@/stores/locales';
 import { storeToRefs } from 'pinia';
+import { LangsEnum } from '@/types/enums';
 
 const localeStore = useLocalesStore();
 

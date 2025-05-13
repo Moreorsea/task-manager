@@ -45,3 +45,8 @@ export enum RepeatingDaysRu {
   sa = 'сб',
   su = 'вс',
 }
+
+export enum LangsEnum {
+  en = 'en',
+  ru = 'ru',
+}

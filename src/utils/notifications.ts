@@ -13,5 +13,6 @@ export const handleSuccess = (text: string) => {
   notify({
     title: text,
     type: 'success',
+    duration: 10000,
   });
 };

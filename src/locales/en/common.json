@@ -49,6 +49,15 @@
   },
   "errors": {
     "errorTaskNoName": "Please enter a task name",
-    "errorTaskNoRepeat": "Please enter repeat days"
+    "errorTaskNoRepeat": "Please enter repeat days",
+    "errorGetTasks": "An error occurred while loading tasks. Please try again later.",
+    "errorDeleteTask": "An error occurred while deleting the task. Please try again later.",
+    "errorCreateTask": "An error occurred while creating a task. Please try again later.",
+    "errorEditTask": "An error occurred while editing the task. Please try again later."
+  },
+  "success": {
+    "successAddTask": "Task successfully added",
+    "successEditTask": "Task successfully edited",
+    "successDeleteTask": "Task successfully deleted"
   }
 }

@@ -18,6 +18,7 @@ import { Icon } from '@iconify/vue';
   background-color: rgba(white, 0.5);
   top: 0;
   left: 0;
+  z-index: 100;
 
   &__spinner {
     position: absolute;

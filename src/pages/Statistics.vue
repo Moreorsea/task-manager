@@ -2,13 +2,13 @@
   <section class="statistic container">
     <div class="statistic__line">
       <div class="statistic__period">
-        <h2 class="statistic__period-title">{{ t("statistics.title") }}</h2>
+        <h2 class="statistic__period-title">{{ t('statistics.title') }}</h2>
 
         <div class="statistic-input-wrap">
           <flat-pickr v-model="dateRange" :config="config" @on-change="handleChange" />
         </div>
 
-        <p class="statistic__period-result">{{ t('statistics.amountForPeriod', {count: 0}) }}</p>
+        <p class="statistic__period-result">{{ t('statistics.amountForPeriod', { count: tasksCount }) }}</p>
       </div>
       <div class="statistic__circle">
         <div class="statistic__colors-wrap">
@@ -18,7 +18,7 @@
     </div>
 
     <div class="statistic__line-graphic">
-      <bar-chart :date-range="dateRange" :tasks="tasks" :days-of-range="daysOfRange" />
+      <bar-chart :date-range="dateRange" :tasks="tasks" :days-of-range="daysOfRange" @get-count="getTaskTotalCount" />
     </div>
   </section>
 </template>
@@ -26,20 +26,26 @@
 <script lang="ts" setup>
 import flatPickr from 'vue-flatpickr-component';
 import 'flatpickr/dist/flatpickr.css';
-import { onBeforeMount } from 'vue';
+import { onBeforeMount, ref } from 'vue';
+import { storeToRefs } from 'pinia';
+import { useTranslation } from 'i18next-vue';
 
 import { useTasksStore } from '@/stores/tasks';
-import { storeToRefs } from 'pinia';
 import { useDateOfRange } from '@/composables/useDateOfRange';
+
 import PieChart from '../components/Statistic/PieChart.vue';
 import BarChart from '../components/Statistic/BarChart.vue';
-import { useTranslation } from 'i18next-vue';
 
 const tasksStore = useTasksStore();
 const { tasks } = storeToRefs(tasksStore);
-const  { t } = useTranslation();
+const { t } = useTranslation();
+const tasksCount = ref<number>(0);
 
 const { config, handleChange, dateRange, daysOfRange } = useDateOfRange();
+
+const getTaskTotalCount = (total: number) => {
+  tasksCount.value = total;
+};
 
 onBeforeMount(() => {
   if (tasks.value.length === 0) tasksStore.fetchTasks();

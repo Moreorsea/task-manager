@@ -69,34 +69,33 @@ export const useTasksStore = defineStore('tasks', () => {
     activeSort.value = Sorts.default;
   };
 
-  const setTasksListState = (state: undefined | null | number) => {
+  const setTasksListState = (state: TaskListState) => {
     tasksListState.value = state;
   };
 
-  const resetTasksListState = () => {
-    tasksListState.value = undefined;
-  };
-
   const createEditTask = (task: ITask, method: API_METHODS) => {
-    const date = task.due_date ? new Date(task.due_date) : null;
+    setLoading(true);
+    //const date = task.due_date ? new Date(task.due_date) : null;
     axios({
       method,
       url: method === API_METHODS.put ? `${API_URL}/${task.id}` : `${API_URL}`,
       data: {
         ...task,
-        due_date: task.due_date ? date?.getTime() : null,
+        //due_date: date,
         repeating_date: JSON.stringify(task.repeating_date),
       },
     })
       .then(() => {
         isCreateMode.value = false;
         fetchTasks();
-        resetTasksListState();
         setTasksListState(undefined);
         handleSuccess(`${method === API_METHODS.put ? t('success.successEditTask') : t('success.successAddTask')}`);
       })
       .catch(() => {
         handleError(`${method === API_METHODS.put ? t('errors.errorEditTask') : t('errors.errorCreateTask')}`);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 

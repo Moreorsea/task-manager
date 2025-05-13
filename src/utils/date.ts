@@ -1,7 +1,7 @@
+import { LangsEnum } from './../types/enums';
 import { DATE_OPTIONS } from '@/constants/form';
 import { Sorts, Filters } from '@/types/enums';
 import { ITask } from '@/types/interfaces';
-import { Langs } from '@/types/types';
 
 export const isDateToday = (date: string) => {
   const today = new Date();
@@ -29,8 +29,6 @@ export const isTaskExpiringToday = (date: string) => isDateToday(date);
 
 export const getTaskTimestamp = (task: ITask, sort: Sorts) => (task.due_date ? new Date(task.due_date).getTime() : sort === Sorts.down ? -Infinity : Infinity);
 
-export const isDateBetween = (currentDate: Date | string, endDate: Date, startDate: Date) => currentDate >= startDate && currentDate <= endDate;
-
 export const dateToTimestamp = (dateString: string) => {
   const [d, m, y] = dateString.split('.').map(Number);
   const date = new Date(y, m - 1, d);
@@ -38,6 +36,8 @@ export const dateToTimestamp = (dateString: string) => {
   if (isNaN(date.getTime())) {
     throw new Error(`Неверная дата: ${dateString}`);
   }
+
+  date.setHours(0, 0, 0, 0);
 
   return date.getTime();
 };
@@ -48,8 +48,8 @@ export const timestampToDate = (timestamp: number) => {
   return date.toLocaleDateString('en-US', DATE_OPTIONS);
 };
 
-export const toLocaleString = (date: Date, locale: Langs) => {
-  const curLocale = locale === 'ru' ? 'ru-RU' : 'en-US';
+export const toLocaleString = (date: Date, locale: LangsEnum) => {
+  const curLocale = locale === LangsEnum.ru ? 'ru-RU' : 'en-US';
 
   return new Date(date).toLocaleString(curLocale, DATE_OPTIONS);
 };

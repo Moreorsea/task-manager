@@ -15,23 +15,24 @@
         <div class="card__settings">
           <div class="card__details">
             <div class="card__dates">
-              <button class="card__repeat-toggle" type="button" @click="handleRepeat">
-                {{ t('form.repeat') }}<span class="card__repeat-status">{{ t(`form.${isRepeatInputText}`) }}</span>
+              <button v-if="!taskCopy.due_date" class="card__repeat-toggle" type="button" @click="handleRepeat">
+                {{ t('form.repeat') }}
+                <span class="card__repeat-status">{{ t(`form.${isRepeatInputText}`) }}</span>
               </button>
               <fieldset v-if="isRepeat" class="card__repeat-days">
                 <ul class="card__repeat-days-inner">
                   <li v-for="day in RepeatingDays" :key="day" class="card__repeat-days-item" :class="{ 'card__repeat-days-item--active': taskCopy?.repeating_date[day] }" @click="handleDay(day)">
-                    {{ currentLanguage === 'en' ? day : RepeatingDaysRu[day] }}
+                    {{ currentLanguage === LangsEnum.en ? day : RepeatingDaysRu[day] }}
                   </li>
                 </ul>
               </fieldset>
 
-              <button class="card__date-deadline-toggle" type="button" @click="handleDate">
+              <button v-if="!isRepeat" class="card__date-deadline-toggle" type="button" @click="handleDate">
                 {{ t('form.date') }}
                 <span class="card__date-status">{{ t(`form.${isDateInputText}`) }}</span>
               </button>
-              <fieldset v-if="isDate" class="card__date-deadline">
-                <flat-pickr v-model="date" :config="config" class="card__date" @on-сlose="handleDateChange" />
+              <fieldset v-if="taskCopy.due_date" class="card__date-deadline">
+                <flat-pickr :value="date" :config="config" class="card__date" @on-change="handleDateChange" />
               </fieldset>
             </div>
           </div>
@@ -72,7 +73,7 @@ import flatPickr from 'vue-flatpickr-component';
 import 'flatpickr/dist/flatpickr.css';
 import { storeToRefs } from 'pinia';
 import { useTasksStore } from '@/stores/tasks';
-import { API_METHODS, Colors, RepeatingDays, RepeatingDaysRu } from '@/types/enums';
+import { API_METHODS, Colors, RepeatingDays, RepeatingDaysRu, LangsEnum } from '@/types/enums';
 import Wave from './Wave.vue';
 import { useTranslation } from 'i18next-vue';
 import { useLocalesStore } from '@/stores/locales';
@@ -90,15 +91,18 @@ const tasksStore = useTasksStore();
 const taskCopy = ref(props.task || tasksStore.createNewTask());
 const isRepeat = ref(Object.values(taskCopy.value?.repeating_date || {}).some((el) => el));
 const isRepeatInputText = computed<string>(() => (isRepeat.value ? 'yes' : 'no'));
-const isDate = ref(!!taskCopy.value?.due_date);
-const isDateInputText = computed<string>(() => (isDate.value ? 'yes' : 'no'));
+const isDateInputText = computed<string>(() => (taskCopy.value.due_date ? 'yes' : 'no'));
 const errorMessage = ref('');
-const date = ref(props.task?.due_date ? new Date(props.task?.due_date).getTime() : new Date().getTime());
+const date = ref(props.task?.due_date ?? Date.now());
 const localeStore = useLocalesStore();
 const { currentLanguage } = storeToRefs(localeStore);
 
 const config = ref({
-  dateFormat: 'M d, Y',
+  enableTime: false,
+  dateFormat: 'Z',
+  altInput: true,
+  altFormat: 'M d, Y',
+  defaultDate: date.value,
 });
 
 const { tasksListState } = storeToRefs(tasksStore);
@@ -114,6 +118,12 @@ const classes = computed<string>(() => {
 
   return classNames.join(' ');
 });
+
+const handleDateChange = (selectedDates) => {
+  if (selectedDates.length) {
+    date.value = selectedDates[0].getTime();
+  }
+};
 
 const validateForm = () => {
   const errors = [];
@@ -136,15 +146,11 @@ const handleSave = () => {
     tasksStore.createEditTask(
       {
         ...taskCopy.value,
-        due_date: isDate.value ? date.value : null,
+        due_date: date.value,
       },
       taskCopy.value.id ? API_METHODS.put : API_METHODS.post,
     );
   }
-};
-
-const handleDateChange = (selectedDates: Array<Date>) => {
-  date.value = new Date(selectedDates[0]).getTime();
 };
 
 const handleDelete = () => {
@@ -187,13 +193,12 @@ const handleRepeat = () => {
       su: false,
     };
   } else {
-    isDate.value = false;
     taskCopy.value.due_date = null;
   }
 };
 
 const handleDate = () => {
-  isDate.value = !isDate.value;
+  taskCopy.value.due_date = !taskCopy.value.due_date;
 };
 </script>
 
