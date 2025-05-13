@@ -1,8 +1,10 @@
+import { useTranslation } from 'i18next-vue';
 import { ITask } from '@/types/interfaces';
 import { computed, Ref } from 'vue';
 import { Colors } from '@/types/enums';
 
 export const usePieChartData = (tasks: Ref<ITask[]>) => {
+  const { t } = useTranslation();
   const emptyColorObject = {
     [Colors.black]: 0,
     [Colors.yellow]: 0,
@@ -23,7 +25,7 @@ export const usePieChartData = (tasks: Ref<ITask[]>) => {
   );
 
   const chartData = computed(() => ({
-    labels: ['Черный', 'Жёлтый', 'Синий', 'Зелёный', 'Розовый'],
+    labels: Object.values(Colors).map((color) => t(`statistics.pieColors.${color}`)),
     datasets: [
       {
         data: Object.values(colorTasks.value),
@@ -41,7 +43,7 @@ export const usePieChartData = (tasks: Ref<ITask[]>) => {
       },
       title: {
         display: true,
-        text: 'Соотношение всех задач по цветам',
+        text: t('statistics.pieTitle'),
       },
     },
   };

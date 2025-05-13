@@ -1,22 +1,28 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
-import { useNotification } from '@kyvg/vue3-notification';
 import axios from 'axios';
 import { API_URL, DEFAULT_PAGE_SIZE, DEFAULT_REPEATING_DATE } from '@/constants/form';
 import { TaskListState } from '@/types/types';
 import { ITask } from '@/types/interfaces';
 import { API_METHODS, Colors, Filters, Sorts } from '@/types/enums';
 import { filterTasksByType, sortedTasksByDueDate } from '../utils/tasks';
+import { useTranslation } from 'i18next-vue';
+import { handleError, handleSuccess } from '@/utils/notifications';
 
 export const useTasksStore = defineStore('tasks', () => {
+  const { t } = useTranslation();
   const isCreateMode = ref(false);
   const tasks = ref<ITask[]>([]);
   const activeFilter = ref(Filters.all);
   const activeSort = ref(Sorts.default);
-  const { notify } = useNotification();
   const currentPageSize = ref(DEFAULT_PAGE_SIZE);
   // когда никаких действий не происходит - undefined, когда добавление задачи - null, когда редактирование - number
   const tasksListState = ref<TaskListState>(undefined);
+  const isLoading = ref(true);
+
+  const setLoading = (value: boolean) => {
+    isLoading.value = value;
+  };
 
   const filteredAndSortedTasks = computed<ITask[]>(() => {
     const filtered = filterTasksByType(tasks.value, activeFilter.value);
@@ -28,13 +34,6 @@ export const useTasksStore = defineStore('tasks', () => {
 
   const isShowLoadMore = computed<boolean>(() => currentPageSize.value < filteredAndSortedTasks.value.length);
 
-  const handleError = (text: string) => {
-    notify({
-      title: text,
-      type: 'error',
-    });
-  };
-
   const fetchTasks = async () => {
     try {
       const { data } = await axios.get(`${API_URL}`);
@@ -43,7 +42,9 @@ export const useTasksStore = defineStore('tasks', () => {
         repeating_date: typeof task.repeating_date === 'string' ? JSON.parse(task.repeating_date) : task.repeating_date,
       }));
     } catch (error) {
-      handleError('При загрузке задач возникла ошибка. Пожалуйста, попробуйте позже.');
+      handleError(t('errors.errorGetTasks'));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -92,13 +93,10 @@ export const useTasksStore = defineStore('tasks', () => {
         fetchTasks();
         resetTasksListState();
         setTasksListState(undefined);
-        notify({
-          title: `Задача успешно ${method === API_METHODS.put ? 'отредактирована' : 'добавлена'}`,
-          type: 'success',
-        });
+        handleSuccess(`${method === API_METHODS.put ? t('success.successEditTask') : t('success.successAddTask')}`);
       })
       .catch(() => {
-        handleError(`При ${method === API_METHODS.put ? 'редактировании' : 'создании'} задачи возникла ошибка. Пожалуйста, попробуйте позже.`);
+        handleError(`${method === API_METHODS.put ? t('errors.errorEditTask') : t('errors.errorCreateTask')}`);
       });
   };
 
@@ -107,14 +105,10 @@ export const useTasksStore = defineStore('tasks', () => {
       .delete(`${API_URL}/${id}`)
       .then(() => {
         fetchTasks();
-
-        notify({
-          title: 'Задача успешно удалена',
-          type: 'success',
-        });
+        handleSuccess(t('success.successDeleteTask'));
       })
       .catch(() => {
-        handleError('При удалении задачи возникла ошибка. Пожалуйста, попробуйте позже.');
+        handleError(t('errors.errorDeleteTask'));
       });
   };
 
@@ -139,6 +133,7 @@ export const useTasksStore = defineStore('tasks', () => {
     currentPageSize,
     activeSort,
     activeFilter,
+    isLoading,
 
     paginatedTasks,
     filteredAndSortedTasks,
@@ -154,5 +149,6 @@ export const useTasksStore = defineStore('tasks', () => {
     updatePageSize,
     resetPageSize,
     resetFilterAndSort,
+    setLoading,
   };
 });

@@ -1,24 +1,20 @@
 <template>
   <section class="toggle__container">
     <div class="toggle">
-      <span class="toggle__text" @click="handleLanguageChange('ru')">ru</span>
+      <span class="toggle__text" @click="localeStore.handleLanguageChange('ru')">ru</span>
       <div class="toggle__switch" :class="{ ru: currentLanguage === 'ru', en: currentLanguage === 'en' }"></div>
-      <span class="toggle__text" @click="handleLanguageChange('en')">en</span>
+      <span class="toggle__text" @click="localeStore.handleLanguageChange('en')">en</span>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import i18next from 'i18next';
-import { ref, onMounted, onBeforeMount } from 'vue';
+import { useLocalesStore } from '@/stores/locales';
+import { storeToRefs } from 'pinia';
 
-const currentLanguage = ref(localStorage.getItem('i18nextLng') || 'en');
-type langs = 'ru' | 'en';
+const localeStore = useLocalesStore();
 
-const handleLanguageChange = (lng: langs) => {
-  i18next.changeLanguage(lng);
-  currentLanguage.value = lng;
-};
+const { currentLanguage } = storeToRefs(localeStore);
 </script>
 
 <style scoped lang="less">

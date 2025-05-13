@@ -5,9 +5,9 @@
     <div class="card__form">
       <div class="card__inner">
         <div class="card__control">
-          <button type="button" class="card__btn card__btn--edit" @click="handleEditForm">edit</button>
-          <button type="button" :class="{ 'card__btn card__btn--archive': true, 'card__btn--disabled': task.is_archived }" @click="handleArchive">archive</button>
-          <button type="button" :class="{ 'card__btn card__btn--favorites': true, 'card__btn--disabled': task.is_favorite }" @click="handleFavorite">favorites</button>
+          <Icon icon="line-md:edit" width="24" height="24" class="card__btn card__btn--edit" @click="handleEditForm" />
+          <Icon icon="line-md:folder-check" width="24" :class="{ 'card__btn card__btn--archive': true, 'card__btn--disabled': task.is_archived }" height="24" @click="handleArchive" />
+          <Icon icon="line-md:heart" width="24" height="24" @click="handleFavorite" :class="{ 'card__btn card__btn--favorites': true, 'card__btn--disabled': task.is_favorite }" />
         </div>
 
         <div class="card__color-bar">
@@ -18,14 +18,14 @@
           <p class="card__text">{{ task.description }}</p>
         </div>
 
-        <div v-if="isRepeatingTask(props.task?.repeating_date)" class="card__days">Task repetition days: {{ repeatingDays }}</div>
+        <div v-if="isRepeatingTask(props.task?.repeating_date)" class="card__days">{{ t('tasks.repetitionDays', { days: repeatingDays }) }}</div>
 
         <div v-if="task.due_date" class="card__settings">
           <div class="card__details">
             <div class="card__dates">
               <div class="card__date-deadline">
                 <p class="card__input-deadline-wrap">
-                  <span class="card__date">{{ new Date(task.due_date).toLocaleString('en-US', DATE_OPTIONS) }}</span>
+                  <span class="card__date">{{ toLocaleString(task.due_date, currentLanguage) }}</span>
                 </p>
               </div>
             </div>
@@ -39,12 +39,14 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 import { useTasksStore } from '@/stores/tasks';
-import { isTaskExpired } from '@/utils/date';
+import { isTaskExpired, toLocaleString } from '@/utils/date';
 import { storeToRefs } from 'pinia';
-import { API_METHODS } from '@/types/enums';
-import { DATE_OPTIONS } from '@/constants/form';
+import { API_METHODS, RepeatingDaysRu } from '@/types/enums';
+import { Icon } from '@iconify/vue';
 import Wave from './Wave.vue';
 import Form from './Form.vue';
+import { useTranslation } from 'i18next-vue';
+import { useLocalesStore } from '@/stores/locales';
 
 const props = defineProps({
   task: {
@@ -53,13 +55,21 @@ const props = defineProps({
   },
 });
 
+const { t } = useTranslation();
+
 const isRepeatingTask = (repeating_date: any): boolean => Object.values(repeating_date).some((el) => el);
+const localeStore = useLocalesStore();
+const { currentLanguage } = storeToRefs(localeStore);
 
 const repeatingDays = computed(() =>
   Object.entries(props.task?.repeating_date)
     .reduce((sum, day) => {
       if (day[1]) {
-        sum.push(day[0]);
+        if (currentLanguage.value === 'ru') {
+          sum.push(RepeatingDaysRu[day[0]]);
+        } else {
+          sum.push(day[0]);
+        }
       }
 
       return sum;
@@ -93,11 +103,11 @@ const handleEditForm = () => {
 };
 
 const handleFavorite = () => {
-  tasksStore.createEditTask({...props.task, is_favorite: !props.task.is_favorite,}, API_METHODS.put);
+  tasksStore.createEditTask({ ...props.task, is_favorite: !props.task.is_favorite }, API_METHODS.put);
 };
 
 const handleArchive = () => {
-  tasksStore.createEditTask({...props.task, is_archived: !props.task.is_archived}, API_METHODS.put);
+  tasksStore.createEditTask({ ...props.task, is_archived: !props.task.is_archived }, API_METHODS.put);
 };
 </script>
 
@@ -185,36 +195,39 @@ const handleArchive = () => {
   width: 100%;
   height: 10px;
   font-size: 0;
-  //background-color: black;
   margin-bottom: 10px;
-  //stroke: @black;
 }
 .card--black .card__color-bar {
   background-color: @black;
+  opacity: 0.7;
 }
 .card--black .card__color-bar-wave {
   stroke: @black;
 }
 .card--yellow .card__color-bar {
   background-color: @yellow;
+  opacity: 0.7;
 }
 .card--yellow .card__color-bar-wave {
   stroke: @yellow;
 }
 .card--blue .card__color-bar {
   background-color: @blue;
+  opacity: 0.7;
 }
 .card--blue .card__color-bar-wave {
   stroke: @blue;
 }
 .card--green .card__color-bar {
   background-color: @green;
+  opacity: 0.7;
 }
 .card--green .card__color-bar-wave {
   stroke: @green;
 }
 .card--pink .card__color-bar {
   background-color: @pink;
+  opacity: 0.7;
 }
 .card--pink .card__color-bar-wave {
   stroke: @pink;

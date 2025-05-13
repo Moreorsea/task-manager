@@ -35,3 +35,13 @@ export enum RepeatingDays {
   sa = 'sa',
   su = 'su',
 }
+
+export enum RepeatingDaysRu {
+  mo = 'пн',
+  tu = 'вт',
+  we = 'ср',
+  th = 'чт',
+  fr = 'пт',
+  sa = 'сб',
+  su = 'вс',
+}

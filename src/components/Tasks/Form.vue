@@ -8,7 +8,7 @@
 
         <div class="card__textarea-wrap">
           <label>
-            <textarea v-model="taskCopy.description" class="card__text" placeholder="Start typing your text here..." minlength="1" maxlength="120" name="text" />
+            <textarea v-model="taskCopy.description" class="card__text" :placeholder="t('form.placeholder')" minlength="1" maxlength="120" name="text" />
           </label>
         </div>
 
@@ -16,21 +16,19 @@
           <div class="card__details">
             <div class="card__dates">
               <button class="card__repeat-toggle" type="button" @click="handleRepeat">
-                repeat:<span class="card__repeat-status">{{ isRepeat ? 'yes' : 'no' }}</span>
+                {{ t('form.repeat') }}<span class="card__repeat-status">{{ t(`form.${isRepeatInputText}`) }}</span>
               </button>
               <fieldset v-if="isRepeat" class="card__repeat-days">
-                <div class="card__repeat-days-inner">
-                  <template v-for="day in RepeatingDays" :key="day">
-                    <input :id="`repeat-${day}-4`" class="visually-hidden card__repeat-day-input" type="checkbox" name="repeat" :value="day" :checked="taskCopy?.repeating_date[day]" />
-                    <label class="card__repeat-day" :for="`repeat-${day}-4`" @click="handleDay(day)">{{ day }}</label>
-                  </template>
-                </div>
+                <ul class="card__repeat-days-inner">
+                  <li v-for="day in RepeatingDays" :key="day" class="card__repeat-days-item" :class="{ 'card__repeat-days-item--active': taskCopy?.repeating_date[day] }" @click="handleDay(day)">
+                    {{ currentLanguage === 'en' ? day : RepeatingDaysRu[day] }}
+                  </li>
+                </ul>
               </fieldset>
 
               <button class="card__date-deadline-toggle" type="button" @click="handleDate">
-                date:
-                <span v-if="isDate" class="card__date-status">yes</span>
-                <span v-else class="card__date-status">no</span>
+                {{ t('form.date') }}
+                <span class="card__date-status">{{ t(`form.${isDateInputText}`) }}</span>
               </button>
               <fieldset v-if="isDate" class="card__date-deadline">
                 <flat-pickr v-model="date" :config="config" class="card__date" @on-сlose="handleDateChange" />
@@ -39,7 +37,7 @@
           </div>
 
           <div class="card__colors-inner">
-            <h3 class="card__colors-title">Color</h3>
+            <h3 class="card__colors-title">{{ t('form.color') }}</h3>
             <ul class="card__colors-wrap">
               <li v-for="color in Colors" :key="color">
                 <input
@@ -59,9 +57,9 @@
         <p class="error">{{ errorMessage }}</p>
 
         <div class="card__status-btns">
-          <button class="card__button card__button--save" type="submit" @click.prevent="handleSave">save</button>
-          <button class="card__button card__button--cancel" @click.prevent="handleCancel">cancel</button>
-          <button v-if="tasksListState !== null" class="card__button card__button--delete" @click.prevent="handleDelete">delete</button>
+          <button class="card__button card__button--save" type="submit" @click.prevent="handleSave">{{ t('form.save') }}</button>
+          <button class="card__button card__button--cancel" @click.prevent="handleCancel">{{ t('form.cancel') }}</button>
+          <button v-if="tasksListState !== null" class="card__button card__button--delete" @click.prevent="handleDelete">{{ t('form.delete') }}</button>
         </div>
       </div>
     </form>
@@ -74,8 +72,10 @@ import flatPickr from 'vue-flatpickr-component';
 import 'flatpickr/dist/flatpickr.css';
 import { storeToRefs } from 'pinia';
 import { useTasksStore } from '@/stores/tasks';
-import { API_METHODS, Colors } from '@/types/enums';
+import { API_METHODS, Colors, RepeatingDays, RepeatingDaysRu } from '@/types/enums';
 import Wave from './Wave.vue';
+import { useTranslation } from 'i18next-vue';
+import { useLocalesStore } from '@/stores/locales';
 
 const props = defineProps({
   task: {
@@ -84,13 +84,18 @@ const props = defineProps({
   },
 });
 
+const { t } = useTranslation();
 const tasksStore = useTasksStore();
 
 const taskCopy = ref(props.task || tasksStore.createNewTask());
 const isRepeat = ref(Object.values(taskCopy.value?.repeating_date || {}).some((el) => el));
+const isRepeatInputText = computed<string>(() => (isRepeat.value ? 'yes' : 'no'));
 const isDate = ref(!!taskCopy.value?.due_date);
+const isDateInputText = computed<string>(() => (isDate.value ? 'yes' : 'no'));
 const errorMessage = ref('');
 const date = ref(props.task?.due_date ? new Date(props.task?.due_date).getTime() : new Date().getTime());
+const localeStore = useLocalesStore();
+const { currentLanguage } = storeToRefs(localeStore);
 
 const config = ref({
   dateFormat: 'M d, Y',
@@ -114,11 +119,11 @@ const validateForm = () => {
   const errors = [];
 
   if (!taskCopy.value.description) {
-    errors.push('Пожалуйста, укажите название задачи');
+    errors.push(t('errors.errorTaskNoName'));
   }
 
   if (isRepeat.value && !Object.values(taskCopy.value?.repeating_date).some((el) => el)) {
-    errors.push('Пожалуйста, укажите дни повторения');
+    errors.push(t('errors.errorTaskNoRepeat'));
   }
 
   errorMessage.value = errors.join('\n');
@@ -381,7 +386,27 @@ const handleDate = () => {
     display: flex;
     width: 100%;
     justify-content: space-between;
-    margin-bottom: 3px;
+    margin-bottom: 15px;
+    margin-top: -5px;
+  }
+
+  .card__repeat-days {
+    &-item {
+      border: 1px solid grey;
+      font-size: 12px;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.5;
+      cursor: pointer;
+
+      &--active {
+        border-color: @black;
+        opacity: 1;
+      }
+    }
   }
 
   .card__repeat-day {

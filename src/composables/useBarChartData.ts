@@ -1,8 +1,10 @@
 import { watch, Ref, computed, ref } from 'vue';
 import { ITask } from '@/types/interfaces';
 import { isDateBetween, timestampToDate } from '@/utils/date';
+import { useTranslation } from 'i18next-vue';
 
 export const useBarChartData = (tasks: Ref<ITask[]>, startDate: Ref<Date>, endDate: Ref<Date>, daysOfRange: Ref<Record<string, number>>) => {
+  const { t } = useTranslation();
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -16,6 +18,7 @@ export const useBarChartData = (tasks: Ref<ITask[]>, startDate: Ref<Date>, endDa
     },
   };
   const filteredTasks = ref<Record<number, number>>({});
+  const tasksCount = ref<number>(0);
 
   const getFilteredTasks = () => {
     const newTasks: Record<string, number> = { ...daysOfRange.value };
@@ -32,11 +35,15 @@ export const useBarChartData = (tasks: Ref<ITask[]>, startDate: Ref<Date>, endDa
 
   watch([tasks, startDate, endDate, daysOfRange], getFilteredTasks, { deep: true, immediate: true });
 
+  watch(filteredTasks, () => {
+    tasksCount.value = Object.values(filteredTasks.value || {}).reduce((sum, item) => sum + item, 0);
+  });
+
   const data = computed(() => ({
     labels: Object.keys(filteredTasks.value || {}).map((item) => timestampToDate(Number(item))),
     datasets: [
       {
-        label: 'График задач за выбранный период',
+        label: t('statistics.barTitle'),
         backgroundColor: '#f87979',
         data: Object.values(filteredTasks.value || {}),
         barPercentage: 1,
@@ -47,5 +54,6 @@ export const useBarChartData = (tasks: Ref<ITask[]>, startDate: Ref<Date>, endDa
   return {
     chartOptions,
     data,
+    tasksCount,
   };
 };

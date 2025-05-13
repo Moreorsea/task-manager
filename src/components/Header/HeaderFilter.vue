@@ -8,7 +8,7 @@
         :class="{ 'filter__item--active': activeFilter === filter, 'filter__item--disabled': count.value === 0 }"
         @click="handleFilter(filter)"
       >
-        {{ t(`filters.${filter}`) }} {{ count }}
+        {{ t(`filters.${filter}`, { count: count.value }) }}
       </li>
     </ul>
   </section>

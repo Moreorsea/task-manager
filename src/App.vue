@@ -2,16 +2,21 @@
   <Header />
 
   <router-view />
+
+  <Preloader v-if="isLoading" />
 </template>
 
 <script lang="ts" setup>
 import { onMounted, onUnmounted, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
 import Header from './components/Header/Header.vue';
+import Preloader from './components/Common/Preloader.vue';
 import { useTasksStore } from './stores/tasks';
+import { storeToRefs } from 'pinia';
 
 const tasksStore = useTasksStore();
 const route = useRoute();
+const { isLoading } = storeToRefs(tasksStore);
 
 const handleEsc = (event: KeyboardEvent): void => {
   if (event.key === 'Escape') {

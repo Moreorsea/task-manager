@@ -10,13 +10,8 @@
       <TaskCard v-for="task in paginatedTasks" :key="task.id" :task="task" />
     </div>
 
-    <button
-      v-if="isShowLoadMore"
-      class="load-more"
-      type="button"
-      @click="tasksStore.updatePageSize"
-    >
-      load more
+    <button v-if="isShowLoadMore" class="load-more" type="button" @click="tasksStore.updatePageSize">
+      {{ t('tasks.loadMore') }}
     </button>
   </section>
 
@@ -32,14 +27,15 @@ import { useTasksStore } from '@/stores/tasks';
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 
+import { useTranslation } from 'i18next-vue';
+
+const { t } = useTranslation();
+
 const tasksStore = useTasksStore();
 const { tasksListState, paginatedTasks, isShowLoadMore } = storeToRefs(tasksStore);
-const showTasksNoLength = computed(
-  () => paginatedTasks.value.length === 0 && tasksListState.value === undefined
-);
+const showTasksNoLength = computed(() => paginatedTasks.value.length === 0 && tasksListState.value === undefined);
 
 const handleKeyUpEsc = () => {
-  console.log('ESC');
   tasksStore.setTasksListState(undefined);
 };
 </script>
@@ -51,15 +47,14 @@ const handleKeyUpEsc = () => {
   margin-top: -10px;
 
   &__tasks {
-  display: flex;
-  flex-flow: row wrap;
-  align-items: flex-start;
-  min-height: 500px;
-  margin-right: -40px;
-}
+    display: flex;
+    flex-flow: row wrap;
+    align-items: flex-start;
+    min-height: 500px;
+    margin-right: -40px;
+  }
 }
 
-// load more
 .load-more {
   width: 100%;
   padding: 15px 0;

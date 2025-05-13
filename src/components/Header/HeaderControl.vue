@@ -1,6 +1,7 @@
 <template>
   <section class="main__control control container">
-    <h1 class="control__title">{{ t('global.title') }}</h1>
+    <router-link to="/tasks" class="control__title">{{ t('global.title') }}</router-link>
+
     <section class="control__btn-wrap">
       <button class="control__btn control__btn--create-task" @click="handleAddTask">{{ t('global.addTask') }}</button>
 
@@ -46,7 +47,10 @@ const handleAddTask = () => {
     margin-top: 0;
     margin-bottom: 0;
     text-transform: uppercase;
+    color: inherit;
+    text-decoration: none;
     flex-shrink: 0;
+    font-weight: bold;
   }
 
   &__btn {

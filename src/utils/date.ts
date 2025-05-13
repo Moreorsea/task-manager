@@ -1,6 +1,7 @@
 import { DATE_OPTIONS } from '@/constants/form';
 import { Sorts, Filters } from '@/types/enums';
 import { ITask } from '@/types/interfaces';
+import { Langs } from '@/types/types';
 
 export const isDateToday = (date: string) => {
   const today = new Date();
@@ -47,4 +48,8 @@ export const timestampToDate = (timestamp: number) => {
   return date.toLocaleDateString('en-US', DATE_OPTIONS);
 };
 
+export const toLocaleString = (date: Date, locale: Langs) => {
+  const curLocale = locale === 'ru' ? 'ru-RU' : 'en-US';
 
+  return new Date(date).toLocaleString(curLocale, DATE_OPTIONS);
+};

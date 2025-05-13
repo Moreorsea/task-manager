@@ -1,11 +1,8 @@
 <template>
   <nav>
     <ul class="board__filter-list">
-      <li v-for="option in sortOptions" :key="option.value">
-        <button
-          class="board__filter"
-          :class="{ 'board__filter--active': activeSort === option.value }"
-          @click.prevent="tasksStore.setActiveSort(option.value)">{{ t(`sorts.${option.value}`) }}</button>
+      <li v-for="option in Sorts" :key="option">
+        <button class="board__filter" :class="{ 'board__filter--active': activeSort === option }" @click.prevent="tasksStore.setActiveSort(option)">{{ t(`sorts.${option}`) }}</button>
       </li>
     </ul>
   </nav>
@@ -21,21 +18,6 @@ const { t } = useTranslation();
 
 const tasksStore = useTasksStore();
 const { activeSort } = storeToRefs(tasksStore);
-
-const sortOptions = [
-  {
-    value: Sorts.default,
-    label: 'SORT BY DEFAULT',
-  },
-  {
-    value: Sorts.up,
-    label: 'SORT BY DATE up',
-  },
-  {
-    value: Sorts.down,
-    label: 'SORT BY DATE down',
-  },
-];
 </script>
 
 <style lang="less" scoped>
