@@ -4,11 +4,12 @@ import axios from 'axios';
 import { API_URL, DEFAULT_PAGE_SIZE, DEFAULT_REPEATING_DATE } from '@/constants/form';
 import { TaskListState } from '@/types/types';
 import { ITask } from '@/types/interfaces';
-import { API_METHODS, Colors, Filters, Sorts } from '@/types/enums';
+import { API_METHODS, Filters, Sorts } from '@/types/enums';
 import { filterTasksByType, sortedTasksByDueDate } from '../utils/tasks';
 import { useTranslation } from 'i18next-vue';
 import { handleError, handleSuccess } from '@/utils/notifications';
 import {saveRequest} from '../stores/offline';
+import { tasksService } from '@/services/task.service';
 
 export const useTasksStore = defineStore('tasks', () => {
   const { t } = useTranslation();
@@ -76,43 +77,46 @@ export const useTasksStore = defineStore('tasks', () => {
 
   const createEditTask = async (task: ITask, method: API_METHODS) => {
     setLoading(true);
-    console.log('NAVIGATOR', navigator.onLine)
-    //const date = task.due_date ? new Date(task.due_date) : null;
-    try {
-      if (!navigator.onLine) throw new Error('Offline')
-    } catch(err) {
-      await saveRequest({
-        method,
-        url: method === API_METHODS.put ? `${API_URL}/${task.id}` : `${API_URL}`,
-        data: {
-          ...task,
-          //due_date: date,
-          repeating_date: JSON.stringify(task.repeating_date),
-        },
-      })
-    }
-    axios({
-      method,
-      url: method === API_METHODS.put ? `${API_URL}/${task.id}` : `${API_URL}`,
-      data: {
-        ...task,
-        //due_date: date,
-        repeating_date: JSON.stringify(task.repeating_date),
-      },
-    })
-      .then(() => {
-        isCreateMode.value = false;
-        fetchTasks();
-        setTasksListState(undefined);
-        handleSuccess(`${method === API_METHODS.put ? t('success.successEditTask') : t('success.successAddTask')}`);
-      })
-      .catch(() => {
-        handleError(`${method === API_METHODS.put ? t('errors.errorEditTask') : t('errors.errorCreateTask')}`);
-      })
-      .finally(() => {
+
+    const payload = {
+      ...task,
+      repeating_date: JSON.stringify(task.repeating_date)
+    };
+
+    if(!navigator.onLine) {
+      try {
+        await saveRequest({
+          method,
+          url: method === API_METHODS.put ? `${API_URL}/${task.id}` : `${API_URL}`,
+          data: payload
+        });
+        handleSuccess("Задача в режиме офлайн успешно добавлена");
+      } catch(error) {
+        handleError("Задача в режиме офлайн не добавлена")
+      } finally {
         setLoading(false);
-      });
-  };
+      }
+      return; // остановка функции, чтобы не идти в сеть
+    }
+
+    try {
+      if(method === API_METHODS.put) {
+        await tasksService.update(task.id!, payload);
+        handleSuccess(t('success.successEditTask'));
+      } else {
+        await tasksService.create(task);
+        handleSuccess(t('success.successAddTask'));
+      }
+
+      isCreateMode.value = false;
+      setTasksListState(undefined);
+      await fetchTasks();
+    } catch(error) {
+      handleError(`${method === API_METHODS.put ? t('errors.errorEditTask') : t('errors.errorCreateTask')}`);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   const deleteTask = async (id: number) => {
     await axios
