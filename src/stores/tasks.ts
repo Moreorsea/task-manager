@@ -20,7 +20,7 @@ export const useTasksStore = defineStore('tasks', () => {
   const currentPageSize = ref(DEFAULT_PAGE_SIZE);
   // когда никаких действий не происходит - undefined, когда добавление задачи - null, когда редактирование - number
   const tasksListState = ref<TaskListState>(undefined);
-  const isLoading = ref(true);
+  const isLoading = ref(false);
 
   const setLoading = (value: boolean) => {
     isLoading.value = value;
@@ -37,12 +37,9 @@ export const useTasksStore = defineStore('tasks', () => {
   const isShowLoadMore = computed<boolean>(() => currentPageSize.value < filteredAndSortedTasks.value.length);
 
   const fetchTasks = async () => {
+    setLoading(true);
     try {
-      const { data } = await axios.get(`${API_URL}`);
-      tasks.value = data.map((task: ITask) => ({
-        ...task,
-        repeating_date: typeof task.repeating_date === 'string' ? JSON.parse(task.repeating_date) : task.repeating_date,
-      }));
+      tasks.value = await tasksService.getAll();
     } catch (error) {
       handleError(t('errors.errorGetTasks'));
     } finally {
