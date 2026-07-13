@@ -15,11 +15,13 @@ export const tasksService = {
   },
 
   async create(task: ITask): Promise<void> {
-    await axios.post(API_URL, task);
+    const { data } = await axios.post(API_URL, task);
+    return data;
   },
 
   async update(id: number, task: ITask): Promise<void> {
-    await axios.put(`${API_URL}/${id}`, task);
+    const { data } = await axios.put(`${API_URL}/${id}`, task);
+    return data;
   },
 
   async delete(id: number): Promise<void> {

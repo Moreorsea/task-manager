@@ -98,10 +98,16 @@ export const useTasksStore = defineStore('tasks', () => {
 
     try {
       if(method === API_METHODS.put) {
-        await tasksService.update(task.id!, payload);
+        const updatedTask = await tasksService.update(task.id!, payload);
+        const index = tasks.value.findIndex(t => t.id === task.id);
+        if(index !== -1) {
+          tasks.value[index] = updatedTask;
+        }
         handleSuccess(t('success.successEditTask'));
       } else {
-        await tasksService.create(task);
+        const createdTask = await tasksService.create(task);
+
+        tasks.value.push(createdTask);
         handleSuccess(t('success.successAddTask'));
       }
 

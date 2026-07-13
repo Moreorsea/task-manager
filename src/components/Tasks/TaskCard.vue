@@ -6,6 +6,7 @@
       <div class="card__inner">
         <div class="card__control">
           <Icon icon="line-md:edit" width="24" height="24" class="card__btn card__btn--edit" @click="handleEditForm" />
+          <Icon icon="line-md:trash" width="24" height="24" class="card__btn card__btn--delete" @click="handleDelete" />
           <Icon icon="line-md:folder-check" width="24" :class="{ 'card__btn card__btn--archive': true, 'card__btn--disabled': task.is_archived }" height="24" @click="handleArchive" />
           <Icon icon="line-md:heart" width="24" height="24" @click="handleFavorite" :class="{ 'card__btn card__btn--favorites': true, 'card__btn--disabled': task.is_favorite }" />
         </div>
@@ -106,6 +107,10 @@ const handleFavorite = () => {
   tasksStore.createEditTask({ ...props.task, is_favorite: !props.task.is_favorite }, API_METHODS.put);
 };
 
+const handleDelete = async () => {
+  await tasksStore.deleteTask(props.task.id);
+}
+
 const handleArchive = () => {
   tasksStore.createEditTask({ ...props.task, is_archived: !props.task.is_archived }, API_METHODS.put);
 };
@@ -164,6 +169,10 @@ const handleArchive = () => {
     }
 
     &--edit {
+      margin-right: 9px;
+    }
+
+    &--delete {
       margin-right: 9px;
     }
 
