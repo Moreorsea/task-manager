@@ -119,16 +119,15 @@ export const useTasksStore = defineStore('tasks', () => {
   }
 
   const deleteTask = async (id: number) => {
-    await axios
-      .delete(`${API_URL}/${id}`)
-      .then(() => {
-        fetchTasks();
-        handleSuccess(t('success.successDeleteTask'));
-      })
-      .catch(() => {
-        handleError(t('errors.errorDeleteTask'));
-      });
-  };
+    try {
+      await tasksService.delete(id);
+      handleSuccess(t('success.successDeleteTask'));
+
+      tasks.value = tasks.value.filter(task => task.id !== id);
+    } catch(error) {
+      handleError(t('errors.errorDeleteTask'));
+    }
+  }
 
   return {
     isCreateMode,
