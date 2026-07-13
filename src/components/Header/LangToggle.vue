@@ -1,9 +1,27 @@
 <template>
   <section class="toggle__container">
     <div class="toggle">
-      <span class="toggle__text" @click="localeStore.handleLanguageChange(LangsEnum.ru)">ru</span>
+      <button
+        class="toggle__text"
+        :class="currentLanguage === LangsEnum.ru ? 'toggle__text-active' : ''"
+        type="button"
+        @click="localeStore.handleLanguageChange(LangsEnum.ru)"
+        @keydown.enter="localeStore.handleLanguageChange(LangsEnum.ru)"
+        @keydown.space.prevent="localeStore.handleLanguageChange(LangsEnum.ru)"
+        role="button"
+        tabindex="0"
+        :aria-pressed="currentLanguage === LangsEnum.ru">ru</button>
       <div class="toggle__switch" :class="{ ru: currentLanguage === LangsEnum.ru, en: currentLanguage === LangsEnum.en }"></div>
-      <span class="toggle__text" @click="localeStore.handleLanguageChange(LangsEnum.en)">en</span>
+      <button
+        class="toggle__text"
+        :class="currentLanguage === LangsEnum.en ? 'toggle__text-active' : ''"
+        type="button"
+        @click="localeStore.handleLanguageChange(LangsEnum.en)"
+        @keydown.enter="localeStore.handleLanguageChange(LangsEnum.en)"
+        @keydown.space.prevent="localeStore.handleLanguageChange(LangsEnum.en)"
+        role="button"
+        tabindex="0"
+        :aria-pressed="currentLanguage === LangsEnum.en">en</button>
     </div>
   </section>
 </template>
@@ -32,6 +50,15 @@ const { currentLanguage } = storeToRefs(localeStore);
 
   &__text {
     cursor: pointer;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    font-size: 16px;
+
+
+    &--active {
+      font-weight: bold;
+    }
   }
 
   &__switch {

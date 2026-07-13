@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { fileURLToPath, URL } from 'node:url';
+import { VitePWA } from 'vite-plugin-pwa';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 export default defineConfig({
@@ -14,6 +15,16 @@ export default defineConfig({
         },
       ],
     }),
+    VitePWA({
+      strategies: 'injectManifest',
+      srcDir: '/',
+      filename: 'sw.js',
+      registerType: 'autoUpdate',
+      manifest: false,
+      workbox: {
+        sourcemap: true
+      }
+    })
   ],
   resolve: {
     alias: {

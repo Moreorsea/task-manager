@@ -8,6 +8,7 @@ import { API_METHODS, Colors, Filters, Sorts } from '@/types/enums';
 import { filterTasksByType, sortedTasksByDueDate } from '../utils/tasks';
 import { useTranslation } from 'i18next-vue';
 import { handleError, handleSuccess } from '@/utils/notifications';
+import {saveRequest} from '../stores/offline';
 
 export const useTasksStore = defineStore('tasks', () => {
   const { t } = useTranslation();
@@ -73,9 +74,23 @@ export const useTasksStore = defineStore('tasks', () => {
     tasksListState.value = state;
   };
 
-  const createEditTask = (task: ITask, method: API_METHODS) => {
+  const createEditTask = async (task: ITask, method: API_METHODS) => {
     setLoading(true);
+    console.log('NAVIGATOR', navigator.onLine)
     //const date = task.due_date ? new Date(task.due_date) : null;
+    try {
+      if (!navigator.onLine) throw new Error('Offline')
+    } catch(err) {
+      await saveRequest({
+        method,
+        url: method === API_METHODS.put ? `${API_URL}/${task.id}` : `${API_URL}`,
+        data: {
+          ...task,
+          //due_date: date,
+          repeating_date: JSON.stringify(task.repeating_date),
+        },
+      })
+    }
     axios({
       method,
       url: method === API_METHODS.put ? `${API_URL}/${task.id}` : `${API_URL}`,
@@ -99,8 +114,8 @@ export const useTasksStore = defineStore('tasks', () => {
       });
   };
 
-  const deleteTask = (id: number) => {
-    axios
+  const deleteTask = async (id: number) => {
+    await axios
       .delete(`${API_URL}/${id}`)
       .then(() => {
         fetchTasks();
@@ -109,20 +124,6 @@ export const useTasksStore = defineStore('tasks', () => {
       .catch(() => {
         handleError(t('errors.errorDeleteTask'));
       });
-  };
-
-  const createNewTask = () => {
-    const newTask: ITask = {
-      id: null,
-      color: Colors.black,
-      description: '',
-      due_date: null,
-      is_archived: false,
-      is_favorite: false,
-      repeating_date: DEFAULT_REPEATING_DATE,
-    };
-
-    return newTask;
   };
 
   return {
@@ -140,7 +141,6 @@ export const useTasksStore = defineStore('tasks', () => {
 
     fetchTasks,
     createEditTask,
-    createNewTask,
     deleteTask,
     setTasksListState,
     setActiveFilter,

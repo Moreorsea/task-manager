@@ -3,7 +3,7 @@
     <router-link to="/tasks" class="control__title">{{ t('global.title') }}</router-link>
 
     <section class="control__btn-wrap">
-      <button class="control__btn control__btn--create-task" @click="handleAddTask">{{ t('global.addTask') }}</button>
+      <button class="control__btn control__btn--create-task" type="button" @click="handleAddTask">{{ t('global.addTask') }}</button>
 
       <router-link to="/tasks" class="control__btn">{{ t('global.tasks') }}</router-link>
 

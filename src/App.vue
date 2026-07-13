@@ -3,6 +3,11 @@
 
   <router-view />
 
+  <div  class="offline-banner">
+    Offline Mode - Data will be synced when online
+    <!-- {{ navigator }} -->
+  </div>
+
   <Preloader v-if="isLoading" />
 </template>
 

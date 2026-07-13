@@ -7,8 +7,8 @@
         </div>
 
         <div class="card__textarea-wrap">
-          <label>
-            <textarea v-model="taskCopy.description" class="card__text" :placeholder="t('form.placeholder')" minlength="1" maxlength="120" name="text" />
+          <label for="text">
+            <textarea v-model="taskCopy.description" class="card__text" :placeholder="t('form.placeholder')" minlength="1" maxlength="120" name="text" id="text" />
           </label>
         </div>
 
@@ -21,9 +21,17 @@
               </button>
               <fieldset v-if="isRepeat" class="card__repeat-days">
                 <ul class="card__repeat-days-inner">
-                  <li v-for="day in RepeatingDays" :key="day" class="card__repeat-days-item" :class="{ 'card__repeat-days-item--active': taskCopy?.repeating_date[day] }" @click="handleDay(day)">
-                    {{ currentLanguage === LangsEnum.en ? day : RepeatingDaysRu[day] }}
-                  </li>
+                  <li v-for="day in RepeatingDays" :key="day" class="card__repeat-days-item">
+  <button
+    type="button"
+    class="card__repeat-day-btn"
+    :class="{ 'card__repeat-days-item--active': taskCopy?.repeating_date[day] }"
+    @click="handleDay(day)"
+    :aria-pressed="taskCopy?.repeating_date[day]"
+  >
+    {{ currentLanguage === LangsEnum.en ? day : RepeatingDaysRu[day] }}
+  </button>
+</li>
                 </ul>
               </fieldset>
 
@@ -49,7 +57,14 @@
                   :value="`${color}`"
                   :checked="taskCopy.color === color"
                 />
-                <label :for="`color-${color}-4`" :class="`card__color card__color--${color}`" @click="handleColor(color)">{{ color }}</label>
+                <label
+                  :for="`color-${color}-4`"
+                  :class="`card__color card__color--${color}`"
+                  @click="handleColor(color)"
+                  @keydown.enter="handleColor(color)"
+                  @keydown.space.prevent="handleColor(color)" role="radio"
+  :aria-checked="taskCopy.color === color"
+  tabindex="0">{{ color }}</label>
               </li>
             </ul>
           </div>
@@ -59,8 +74,8 @@
 
         <div class="card__status-btns">
           <button class="card__button card__button--save" type="submit" @click.prevent="handleSave">{{ t('form.save') }}</button>
-          <button class="card__button card__button--cancel" @click.prevent="handleCancel">{{ t('form.cancel') }}</button>
-          <button v-if="tasksListState !== null" class="card__button card__button--delete" @click.prevent="handleDelete">{{ t('form.delete') }}</button>
+          <button class="card__button card__button--cancel" type="reset" @click.prevent="handleCancel">{{ t('form.cancel') }}</button>
+          <button v-if="tasksListState !== null" class="card__button card__button--delete" type="button" @click.prevent="handleDelete">{{ t('form.delete') }}</button>
         </div>
       </div>
     </form>
@@ -77,6 +92,7 @@ import { API_METHODS, Colors, RepeatingDays, RepeatingDaysRu, LangsEnum } from '
 import Wave from './Wave.vue';
 import { useTranslation } from 'i18next-vue';
 import { useLocalesStore } from '@/stores/locales';
+import { createNewTask } from '@/utils/tasks';
 
 const props = defineProps({
   task: {
@@ -88,7 +104,7 @@ const props = defineProps({
 const { t } = useTranslation();
 const tasksStore = useTasksStore();
 
-const taskCopy = ref(props.task || tasksStore.createNewTask());
+const taskCopy = ref(props.task || createNewTask());
 const isRepeat = ref(Object.values(taskCopy.value?.repeating_date || {}).some((el) => el));
 const isRepeatInputText = computed<string>(() => (isRepeat.value ? 'yes' : 'no'));
 const isDateInputText = computed<string>(() => (taskCopy.value.due_date ? 'yes' : 'no'));
@@ -395,40 +411,66 @@ const handleDate = () => {
     margin-top: -5px;
   }
 
-  .card__repeat-days {
-    &-item {
-      border: 1px solid grey;
-      font-size: 12px;
-      width: 20px;
-      height: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0.5;
-      cursor: pointer;
+  // .card__repeat-days {
+  //   &-item {
+  //     border: 1px solid grey;
+  //     font-size: 12px;
+  //     width: 20px;
+  //     height: 20px;
+  //     display: flex;
+  //     align-items: center;
+  //     justify-content: center;
+  //     opacity: 0.5;
 
-      &--active {
-        border-color: @black;
-        opacity: 1;
-      }
-    }
+  //     &--active {
+  //       border-color: @black;
+  //       opacity: 1;
+  //     }
+  //   }
+  // }
+
+  // .card__repeat-day {
+  //   display: flex;
+  //   justify-content: center;
+  //   align-items: center;
+  //   width: 20px;
+  //   height: 20px;
+  //   font-size: 12px;
+  //   border: 1px solid #e3dede;
+  //   color: #e3dede;
+  //   cursor: pointer;
+
+  //   &:hover {
+  //     background-color: rgba(227, 222, 222, 0.2);
+  //   }
+  // }
+  .card__repeat-days-item {
+  // Удалите cursor: pointer отсюда
+  list-style: none;
+
+  &--active .card__repeat-day-btn {
+    border-color: @black;
+    opacity: 1;
   }
+}
 
-  .card__repeat-day {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 20px;
-    height: 20px;
-    font-size: 12px;
-    border: 1px solid #e3dede;
-    color: #e3dede;
-    cursor: pointer;
+.card__repeat-day-btn {
+  border: 1px solid grey;
+  font-size: 12px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.5;
+  cursor: pointer;
+  background: transparent;
+  padding: 0;
 
-    &:hover {
-      background-color: rgba(227, 222, 222, 0.2);
-    }
+  &:hover {
+    opacity: 0.8;
   }
+}
 
   .card__status-btns {
     display: flex;

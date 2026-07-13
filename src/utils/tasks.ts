@@ -1,6 +1,7 @@
-import { Filters, Sorts } from "@/types/enums";
+import { Filters, Sorts, Colors } from "@/types/enums";
 import { ITask } from "@/types/interfaces";
 import { getTaskTimestamp, isTaskExpired, isTaskExpiringToday } from "./date";
+import { DEFAULT_REPEATING_DATE } from '@/constants/form';
 
 export const filterTasksByType = (tasks: ITask[], filter: Filters) => {
   switch (filter) {
@@ -27,4 +28,18 @@ export const sortedTasksByDueDate = (tasks: ITask[], sort: Sorts) => {
   };
 
   return tasks.sort(sortStrategies[sort]);
+};
+
+export const createNewTask = () => {
+  const newTask: ITask = {
+    id: null,
+    color: Colors.black,
+    description: '',
+    due_date: null,
+    is_archived: false,
+    is_favorite: false,
+    repeating_date: DEFAULT_REPEATING_DATE,
+  };
+
+  return newTask;
 };
